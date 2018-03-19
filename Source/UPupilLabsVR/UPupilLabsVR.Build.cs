@@ -28,6 +28,8 @@ public class UPupilLabsVR : ModuleRules
 			new string[]
 			{
 				"Core",
+                "CoreUObject",
+                "Engine",
                 "libzmq",
 				"Projects"
 				// ... add other public dependencies that you statically link with here ...

@@ -12,11 +12,11 @@ public class libzmq : ModuleRules
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			// Add the import library
-		//	PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "x64", "Release"));
-			//PublicAdditionalLibraries.Add("ExampleLibrary.lib");
-
-			// Delay-load the DLL, so we can load it from the right place first
-		//	PublicDelayLoadDLLs.Add("ExampleLibrary.dll");
-		}
-	}
+			PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "Libraries"));
+			PublicAdditionalLibraries.Add("libzmq.lib");
+            //Add header file
+            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Includes"));
+            
+        }
+    }
 }
