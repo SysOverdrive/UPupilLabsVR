@@ -11,23 +11,14 @@ public class libzmq : ModuleRules
 		Type = ModuleType.External;
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
-		{
-            // Add the import library
-            string libPath = Path.Combine(ModuleDirectory);
-         
-
-
-            PublicLibraryPaths.Add(libPath);
+		{  
+            PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "Libraries"));
             PublicAdditionalLibraries.Add("libzmq.lib");
 
-            //Add header file
-            PublicIncludePaths.Add(libPath);
-         //    if (true) { throw new BuildException("Error Tudor " + libPath); }
-
-            //Add DLL File
+            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Includes"));
+            //    if (true) { throw new BuildException("Error Tudor " + libPath); }
+           //Add DLL File
             PublicDelayLoadDLLs.Add("libzmq.dll");
-
-
         }
     }
 }
