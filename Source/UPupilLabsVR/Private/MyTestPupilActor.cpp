@@ -15,7 +15,9 @@ AMyTestPupilActor::AMyTestPupilActor()
 void AMyTestPupilActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	//void *zmq_ctx = zmq_ctx_new();
+	//zmq_send(nullptr, "SUB_POR", 8, 0);
+	//UE_LOG(BobsPlayground, Log, TEXT("%s"), IModule::Get().IsThisNumber42(42) ? TEXT("True") : TEXT("False"));
 }
 
 // Called every frame

@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-//#include "zmq.h"
+#include "IPluginManager.h"
+
+#include "Core.h"
+#include "zmq.h"
+
 #include "MyTestPupilActor.generated.h"
 
 UCLASS()

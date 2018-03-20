@@ -3,6 +3,7 @@
 using System.IO;
 using UnrealBuildTool;
 
+
 public class libzmq : ModuleRules
 {
 	public libzmq(ReadOnlyTargetRules Target) : base(Target)
@@ -11,12 +12,22 @@ public class libzmq : ModuleRules
 
 		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
-			// Add the import library
-			PublicLibraryPaths.Add(Path.Combine(ModuleDirectory, "Libraries"));
-			PublicAdditionalLibraries.Add("libzmq.lib");
+            // Add the import library
+            string libPath = Path.Combine(ModuleDirectory);
+         
+
+
+            PublicLibraryPaths.Add(libPath);
+            PublicAdditionalLibraries.Add("libzmq.lib");
+
             //Add header file
-            PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Includes"));
-            
+            PublicIncludePaths.Add(libPath);
+         //    if (true) { throw new BuildException("Error Tudor " + libPath); }
+
+            //Add DLL File
+            PublicDelayLoadDLLs.Add("libzmq.dll");
+
+
         }
     }
 }
