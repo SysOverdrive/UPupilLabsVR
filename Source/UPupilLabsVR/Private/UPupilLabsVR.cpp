@@ -3,20 +3,30 @@
 #include "UPupilLabsVR.h"
 #include "Core.h"
 #include "ModuleManager.h"
+#include "IPluginManager.h"
 
 
 #define LOCTEXT_NAMESPACE "FUPupilLabsVRModule"
 
+	
+
 void FUPupilLabsVRModule::StartupModule()
-{
-	// Get the base directory of this plugin
+{	// Get the base directory of this plugin
 	FString BaseDir = IPluginManager::Get().FindPlugin("UPupilLabsVR")->GetBaseDir();
 	
 	// Add on the relative location of the third party dll and load it
 #if PLATFORM_WINDOWS
-	DLLPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/libzmq/X64/Release/libzmq.dll"));
+	DLLPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/libzmq/Win64/libzmq.dll"));
+	LibZmqDLLHandle = !DLLPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*DLLPath) : nullptr;
 #endif 
-	LibZmqDLLHandle = !DLLPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*DLLPath):nullptr;
+
+	if (LibZmqDLLHandle)
+	{
+	}
+	else
+	{
+		FMessageDialog::Open(EAppMsgType::Ok, LOCTEXT("LibzmqLibraryError", "Failed to load libzmq third party library"));
+	}
 }
 
 void FUPupilLabsVRModule::ShutdownModule()
@@ -28,3 +38,10 @@ void FUPupilLabsVRModule::ShutdownModule()
 #undef LOCTEXT_NAMESPACE
 	
 IMPLEMENT_MODULE(FUPupilLabsVRModule, UPupilLabsVR)
+
+
+/*
+#if PLATFORM_WINDOWS
+LibraryPath = FPaths::Combine(*BaseDir, TEXT("Binaries/ThirdParty/UPupilLabsVRLibrary/Win64/ExampleLibrary.dll"));
+LibraryPath = FPaths::Combine(*BaseDir, TEXT("Binaries/ThirdParty/UPupilLabsVRLibrary/Win64/zmqlib.dll"));
+*/

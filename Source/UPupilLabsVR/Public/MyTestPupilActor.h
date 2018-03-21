@@ -9,6 +9,13 @@
 #include "Core.h"
 #include "zmq.h"
 
+#include <string>//TodO dELETE SOME
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <stdlib.h>
+
+
 #include "MyTestPupilActor.generated.h"
 
 UCLASS()
