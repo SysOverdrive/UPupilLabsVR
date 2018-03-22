@@ -9,12 +9,11 @@
 #include "Core.h"
 #include "zmq.h"
 
-#include <string>//TodO dELETE SOME
+#include <string>//Todo delete some of this
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <stdlib.h>
-
 
 #include "MyTestPupilActor.generated.h"
 
@@ -26,7 +25,8 @@ class UPUPILLABSVR_API AMyTestPupilActor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AMyTestPupilActor();
-
+	void *zmq_ctx;
+	void *requester;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
