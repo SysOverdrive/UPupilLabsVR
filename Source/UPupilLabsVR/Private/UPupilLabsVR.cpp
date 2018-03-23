@@ -16,8 +16,10 @@ void FUPupilLabsVRModule::StartupModule()
 	
 	// Add on the relative location of the third party dll and load it
 #if PLATFORM_WINDOWS
-	DLLPath = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/libzmq/Win64/libzmq.dll"));
-	LibZmqDLLHandle = !DLLPath.IsEmpty() ? FPlatformProcess::GetDllHandle(*DLLPath) : nullptr;
+	DLLPathLibZmq = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/libzmq/Win64/libzmq.dll"));
+	DLLPathMsgPack = FPaths::Combine(*BaseDir, TEXT("Source/ThirdParty/msgpack/Win64/msgpackc.dll"));
+	LibZmqDLLHandle = !DLLPathLibZmq.IsEmpty() ? FPlatformProcess::GetDllHandle(*DLLPathLibZmq) : nullptr;
+	MsgPackHandle = !DLLPathMsgPack.IsEmpty() ? FPlatformProcess::GetDllHandle(*DLLPathMsgPack) : nullptr;
 #endif 
 
 	if (LibZmqDLLHandle)

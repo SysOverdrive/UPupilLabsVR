@@ -4,6 +4,7 @@
 #include "UnrealString.h"
 // Sets default values
 #include "atlstr.h"
+#include "msgpack.h"
 
 using namespace std;
 
@@ -50,9 +51,16 @@ void AMyTestPupilActor::Tick(float DeltaTime)
 	//--
 	//char *buffer = (char*)malloc(1000 * sizeof(char) + 1);
 
-	char buffer[1000];
+	char topic[256];
 	UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Before Receiving"));
-	zmq_recv(requester, buffer, 1000, 0);
+	zmq_recv(requester, topic, 256, 0);
+
+	zmq_msg_t  msg;
+	zmq_msg_init(&msg);
+	int rc = zmq_msg_recv(&msg, socket, 0);
+
+
+	/*
 	string myString(buffer);
 	TCHAR shouldRenameTheUsefullVariables[1000]; // = UTF8_TO_TCHAR(buffer);
 	_tcscpy(shouldRenameTheUsefullVariables,UTF8_TO_TCHAR(buffer));
@@ -61,6 +69,7 @@ void AMyTestPupilActor::Tick(float DeltaTime)
 	//cout << "Test " << request_nbr << ": " << buffer << endl;
 	//string message = "TEST" + buffer;
 //	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TestHUDString);
+*/
 	zmq_close(requester);
 	zmq_ctx_destroy(zmq_ctx);
 

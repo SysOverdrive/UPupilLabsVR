@@ -14,6 +14,8 @@ public:
 private:
 	/** Handle to the test dll we will load */
 	void*	LibZmqDLLHandle;
-	FString	DLLPath;
+	void* MsgPackHandle;
+	FString	DLLPathLibZmq;
+	FString	DLLPathMsgPack;
 	
 };
