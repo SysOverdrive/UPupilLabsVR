@@ -7,7 +7,7 @@
 #include "IPluginManager.h"
 
 #include "Core.h"
-#include "zmq.h"
+#include "zmq.hpp"
 
 #include <string>//Todo delete some of this
 #include <cstdlib>
@@ -16,6 +16,8 @@
 #include <stdlib.h>
 
 #include "MyTestPupilActor.generated.h"
+
+
 
 UCLASS()
 class UPUPILLABSVR_API AMyTestPupilActor : public AActor
@@ -27,6 +29,9 @@ public:
 	AMyTestPupilActor();
 	void *zmq_ctx;
 	void *requester;
+	zmq::context_t *ctx;
+	zmq::socket_t *subSocket;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
