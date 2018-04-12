@@ -5,6 +5,9 @@
 // Sets default values
 #include "atlstr.h"
 
+//#define   MSGPACK_USE_CPP03
+#include "msgpack.hpp"
+
 using namespace zmq;
 using namespace std;
 
@@ -43,7 +46,7 @@ void AMyTestPupilActor::BeginPlay()
 	subSocket = new socket_t(*ctx, ZMQ_SUB);
 	subSocket->connect(subPortAddr);
 
-	string filter = u8"";
+	string filter = u8"gaze";
 	//string filter = u8"gaze";
 	//string filter = u8"notify";
 	//string filter = u8"pupil";
@@ -67,6 +70,27 @@ void AMyTestPupilActor::Tick(float DeltaTime)
 	FString PortRequestInfo(rplInfo.c_str());
 	UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Info %s"), *PortRequestInfo);
 
+	char* payload = static_cast<char*>(info.data());
+
+	msgpack::object_handle result;
+	result = msgpack::unpack(payload, info.size());
+	msgpack::object obj(result.get());
+
+	UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Info "));
+	msgpack::object_handle oh = msgpack::unpack(payload, info.size());
+	msgpack::object deserialized = oh.get();
+
+	gaze rvec;
+	deserialized.convert(rvec);
+
+	int i = 0;
+	i++;
+
+	double id;
+   id = rvec.id;
+
+   UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Ceva "));
+	//std::cout << deserialized << std::endl;
 }
 //
 ////Freaky String Stuff
