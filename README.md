@@ -21,4 +21,4 @@ One can subscribe to different topics using
 
 Common Errors:
 
-Can't compile C++ : missing "alts.lib" - Solution : Configuration Manager -> UE4 Platform -> Select X64
+Can't compile C++ : missing "alts.lib" - Solution : Open Visual Studio Installer -> Select Desktop development with c++ -> Select MFC and Atl Support + VC++ 2015.3v 140 toolset for desktop and install them
