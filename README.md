@@ -18,3 +18,7 @@ One can subscribe to different topics using
   <br/>	//string filter = u8"logging";
   
   Currently uses port 55555 on localhost
+
+Common Errors:
+
+Can't compile C++ : missing "alts.lib" - Solution : Configuration Manager -> UE4 Platform -> Select X64
