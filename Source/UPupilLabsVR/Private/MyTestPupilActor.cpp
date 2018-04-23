@@ -76,6 +76,8 @@ void AMyTestPupilActor::Tick(float DeltaTime)
 	msgpack::object_handle oh = msgpack::unpack(payload, info.size());
 	msgpack::object deserialized = oh.get();
 
+	CalculatePrimeNumbers();
+
 	gaze rvec;
 	deserialized.convert(rvec);
 
@@ -88,6 +90,33 @@ void AMyTestPupilActor::Tick(float DeltaTime)
    UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Ceva "));
 	//std::cout << deserialized << std::endl;
 }
+
+void AMyTestPupilActor::CalculatePrimeNumbers()
+{
+	//Performing the prime numbers calculations in the game thread...
+
+	ThreadingTest::CalculatePrimeNumbers(MaxPrime);
+
+	UE_LOG(LogTemp, Warning, TEXT("ASYNC TASK "));
+
+}
+
+void AMyTestPupilActor::CalculatePrimeNumbersAsync()
+{
+	/*Create a new Task and pass as a parameter our MaxPrime
+	Then, tell that Task to execute in the background.
+
+	The FAutoDeleteAsyncTask will make sure to delete the task when it's finished.
+
+	Multithreading requires cautious handle of the available threads, in order to avoid
+	race conditions and strange bugs that are not easy to solve
+
+	Fortunately, UE4 contains a class (FAutoDeleteAsyncTask) which handles everything by itself
+	and the programmer is able to perform async operations without any real effort.*/
+
+	(new FAutoDeleteAsyncTask<PrimeCalculationAsyncTask>(MaxPrime))->StartBackgroundTask();
+}
+
 //
 ////Freaky String Stuff
 //std::vector<char> bytes(sendSubPort.begin(), sendSubPort.end());
