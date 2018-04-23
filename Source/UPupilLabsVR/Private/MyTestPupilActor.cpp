@@ -3,10 +3,6 @@
 #include "MyTestPupilActor.h"
 #include "UnrealString.h"
 // Sets default values
-#include "atlstr.h"
-
-//#define   MSGPACK_USE_CPP03
-#include "msgpack.hpp"
 
 using namespace zmq;
 using namespace std;
