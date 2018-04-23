@@ -18,3 +18,7 @@ One can subscribe to different topics using
   <br/>	//string filter = u8"logging";
   
   Currently uses port 55555 on localhost
+
+Common Errors:
+
+Can't compile C++ : missing "alts.lib" - Solution : Open Visual Studio Installer -> Select Desktop development with c++ -> Select MFC and Atl Support + VC++ 2015.3v 140 toolset for desktop and install them
