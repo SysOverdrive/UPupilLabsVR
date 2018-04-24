@@ -1,12 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MyTestPupilActor.h"
-#include "UnrealString.h"
-// Sets default values
-
-using namespace zmq;
-using namespace std;
-
 
 AMyTestPupilActor::AMyTestPupilActor()
 {
@@ -17,106 +11,61 @@ AMyTestPupilActor::AMyTestPupilActor()
 // Called when the game starts or when spawned
 void AMyTestPupilActor::BeginPlay()
 {	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("Actor>>>>BeginPlay"));
+	Worker = PupilMsgWorkerThread::StartListening();
 
-	ctx = new context_t(1);
-	string addr = "tcp://127.0.0.1:";
-	string req_port = "55555";
-	string con_addr = addr + req_port;
-	
-	zmq::socket_t s(*ctx, ZMQ_REQ);
-	s.connect(con_addr);
-	// Send Request for Sub Port
-	string sendSubPort = u8"SUB_PORT";
-	zmq::message_t subport_request(8);
-	memcpy(subport_request.data(),sendSubPort.c_str(), sendSubPort.length());
-	s.send(subport_request);
-	//Receive Sub Port
-	zmq::message_t reply;
-	s.recv(&reply);
-	//Log Subport
-	std::string  rpl = std::string(static_cast<char*>(reply.data()), reply.size());
-	FString PortRequest(rpl.c_str());
-	UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Sub Port Respons %s"), *PortRequest);
-	/// SUBSCRIBER SOCKET
-	string subPortAddr = addr + rpl;
-	subSocket = new socket_t(*ctx, ZMQ_SUB);
-	subSocket->connect(subPortAddr);
+	//ctx = new zmq::context_t(1);
+	//std::string Addr = "tcp://127.0.0.1:";
+	//std::string Req_port = "55555";
+	//std::string con_addr = Addr + Req_port;
 
-	string filter = u8"gaze";
-	//string filter = u8"gaze";
-	//string filter = u8"notify";
-	//string filter = u8"pupil";
-	//string filter = u8"logging";
-	subSocket->setsockopt(ZMQ_SUBSCRIBE, filter.c_str(), filter.length());
+	//zmq::socket_t s(*ctx, ZMQ_REQ);
+	//s.connect(con_addr);
+	//// Send Request for Sub Port
+	//std::string sendSubPort = u8"SUB_PORT";
+	//zmq::message_t subport_request(8);
+	//memcpy(subport_request.data(), sendSubPort.c_str(), sendSubPort.length());
+	//s.send(subport_request);
+	////Receive Sub Port
+	//zmq::message_t reply;
+	//s.recv(&reply);
+	////Log Subport
+	//std::string  rpl = std::string(static_cast<char*>(reply.data()), reply.size());
+	//FString PortRequest(rpl.c_str());
+	///// SUBSCRIBER SOCKET
+	//std::string subPortAddr = Addr + rpl;
+	//subSocket = new zmq::socket_t(*ctx, ZMQ_SUB);
+	//subSocket->connect(subPortAddr);
+	//std::string filter = u8"gaze";
+	////string filter = u8"gaze";
+	////string filter = u8"notify";
+	////string filter = u8"pupil";
+	////string filter = u8"logging";
+	//subSocket->setsockopt(ZMQ_SUBSCRIBE, filter.c_str(), filter.length());
 }
-	
 // Called every frame
 void AMyTestPupilActor::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime/100);
-	zmq::message_t topic;
-	subSocket->recv(&topic);
-	std::string  rpl = std::string(static_cast<char*>(topic.data()), topic.size());
-	FString PortRequest(rpl.c_str());
-	UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Topic %s"), *PortRequest);
+	Super::Tick(DeltaTime);
+ //   UE_LOG(LogTemp, Warning, TEXT("Actor>>>>Tick"));
 
-	zmq::message_t info;
-	subSocket->recv(&info);
-	std::string  rplInfo = std::string(static_cast<char*>(info.data()), info.size());
-	FString PortRequestInfo(rplInfo.c_str());
-	UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Info %s"), *PortRequestInfo);
+	//zmq::message_t topic;
+	//subSocket->recv(&topic);
+	//std::string  rpl = std::string(static_cast<char*>(topic.data()), topic.size());
+	////FString PortRequest(rpl.c_str());
 
-	char* payload = static_cast<char*>(info.data());
+	//zmq::message_t info;
+	//subSocket->recv(&info);
+	////std::string  rplInfo = std::string(static_cast<char*>(info.data()), info.size()); For Debug
+	////FString PortRequestInfo(rplInfo.c_str());
 
-	msgpack::object_handle result;
-	result = msgpack::unpack(payload, info.size());
-	msgpack::object obj(result.get());
-
-	UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Info "));
-	msgpack::object_handle oh = msgpack::unpack(payload, info.size());
-	msgpack::object deserialized = oh.get();
-
-	CalculatePrimeNumbers();
-
-	gaze rvec;
-	deserialized.convert(rvec);
-
-	int i = 0;
-	i++;
-
-	double id;
-   id = rvec.id;
-
-   UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Ceva "));
-	//std::cout << deserialized << std::endl;
+	//char* payload = static_cast<char*>(info.data());
+	//msgpack::object_handle oh = msgpack::unpack(payload, info.size());
+	//msgpack::object deserialized = oh.get();
+	//gaze ReceivedGazeStruct;
+	//deserialized.convert(ReceivedGazeStruct);
+	//UE_LOG(LogTemp, Warning, TEXT("Struct>>>>Ellipse X: %d", ReceivedGazeStruct.base_data.pupil.ellipse.center.x));
 }
-
-void AMyTestPupilActor::CalculatePrimeNumbers()
-{
-	//Performing the prime numbers calculations in the game thread...
-
-	ThreadingTest::CalculatePrimeNumbers(MaxPrime);
-
-	UE_LOG(LogTemp, Warning, TEXT("ASYNC TASK "));
-
-}
-
-void AMyTestPupilActor::CalculatePrimeNumbersAsync()
-{
-	/*Create a new Task and pass as a parameter our MaxPrime
-	Then, tell that Task to execute in the background.
-
-	The FAutoDeleteAsyncTask will make sure to delete the task when it's finished.
-
-	Multithreading requires cautious handle of the available threads, in order to avoid
-	race conditions and strange bugs that are not easy to solve
-
-	Fortunately, UE4 contains a class (FAutoDeleteAsyncTask) which handles everything by itself
-	and the programmer is able to perform async operations without any real effort.*/
-
-	(new FAutoDeleteAsyncTask<PrimeCalculationAsyncTask>(MaxPrime))->StartBackgroundTask();
-}
-
 //
 ////Freaky String Stuff
 //std::vector<char> bytes(sendSubPort.begin(), sendSubPort.end());
