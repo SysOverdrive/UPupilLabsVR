@@ -4,21 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "IPluginManager.h"
-
 #include "Core.h"
-#include "zmq.hpp"
 
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <stdlib.h>
-
-#define   MSGPACK_USE_CPP03
-#include "msgpack.hpp"
-
-#include "PupilMsgWorkerThread.h"
-#include "GazeStruct.h"
+#include "PupilMsgWorker.h"
 #include "MyTestPupilActor.generated.h"
 
 
@@ -30,10 +18,6 @@ class UPUPILLABSVR_API AMyTestPupilActor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AMyTestPupilActor();
-	void *zmq_ctx;
-	void *requester;
-	zmq::context_t *ctx;
-	zmq::socket_t *subSocket;
 
 protected:
 	// Called when the game starts or when spawned
@@ -42,6 +26,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	PupilMsgWorkerThread* Worker;
+	PupilMsgWorker* PupilMessagingListener;
 
 };

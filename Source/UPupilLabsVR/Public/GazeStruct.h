@@ -1,7 +1,10 @@
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Chifor Tudor
+
 #pragma once
+
 #define   MSGPACK_USE_CPP03
 #include "msgpack.hpp"
-
 
 struct norm_pos {
 	double x;
@@ -45,7 +48,7 @@ struct base_data {
 	MSGPACK_DEFINE_ARRAY(pupil);
 };
 
-struct gaze {
+struct GazeStruct {
 	std::string topic;
 	norm_pos norm_pos;
 	base_data base_data;
