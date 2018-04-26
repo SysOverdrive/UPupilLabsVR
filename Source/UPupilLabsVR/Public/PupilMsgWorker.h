@@ -37,6 +37,16 @@ class PupilMsgWorker : public FRunnable
 	static void Shutdown();
 
 private:
+	bool IsSuccessfulyInit;
+
+	bool IsRunning;
+
+	bool Init() override;
+
+	virtual void Stop();
+
+	virtual uint32 Run();
+
 	zmq::socket_t ConnectToZmqPupilPublisher(std::string ReqPort);
 
 	zmq::socket_t* ConnectToSubport(zmq::socket_t ReqSocket, std::string Topic);
@@ -48,13 +58,8 @@ public:
 	PupilMsgWorker();
 	~PupilMsgWorker();
 
-	bool IsSuccessfulyInit;
-	bool IsRunning;
-
-	bool Init() override;
-	virtual void Stop();
-	virtual uint32 Run();
 	static PupilMsgWorker* StartListening();
-	void StopListening();
-};
 
+	void StopListening();
+
+};
