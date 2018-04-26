@@ -58,3 +58,16 @@ struct GazeStruct {
 	MSGPACK_DEFINE_MAP(topic, norm_pos, confidence, id, timestamp, base_data);
 };
 
+struct gaze_struct {
+	std::string topic;
+	norm_pos norm_pos;
+	base_data base_data;
+	double confidence;
+	double id;
+	double timestamp;
+	MSGPACK_DEFINE_MAP(topic, norm_pos, confidence, id, timestamp, base_data);
+};
+
+
+
+

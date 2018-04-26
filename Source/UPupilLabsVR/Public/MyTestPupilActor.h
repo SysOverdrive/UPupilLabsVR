@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Core.h"
 
-#include "PupilMsgWorker.h"
+#include "FPupilMsgWorker.h"
 #include "MyTestPupilActor.generated.h"
 
 
@@ -26,6 +26,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	PupilMsgWorker* PupilMessagingListener;
+	FPupilMsgWorker* PupilMessagingListener;
 
 };

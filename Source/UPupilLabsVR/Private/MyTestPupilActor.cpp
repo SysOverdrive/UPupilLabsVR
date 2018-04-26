@@ -13,7 +13,7 @@ AMyTestPupilActor::AMyTestPupilActor()
 void AMyTestPupilActor::BeginPlay()
 {	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("PupilActor>>>>BeginPlay"));
-	PupilMessagingListener = PupilMsgWorker::StartListening();
+	PupilMessagingListener =FPupilMsgWorker::StartListening();
 }
 // Called every frame
 void AMyTestPupilActor::Tick(float DeltaTime)
