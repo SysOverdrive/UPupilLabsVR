@@ -35,7 +35,7 @@ bool FPupilMsgWorker::Init()
 {	
 	 PupilHelper = FPupilLabsUtils();
 	
-	return true; //TODO BUILD A ERROR BASED LOG. FALSE IF THE INITIALISATION FAILED
+	return true; //TODO BUILD A ERROR BASED LOG. FALSE IF THE INITIALISATION FAILED//O Metoda ce sa returneze un numar de Eroare sau ceva similar
 }
 
 /**
@@ -50,10 +50,10 @@ uint32 FPupilMsgWorker::Run()
 	{
 		FPlatformProcess::Sleep(0.32);
 
-		float DummyEllipseData;
-
-		DummyEllipseData = PupilHelper.GetDummyElipseData();
-		UE_LOG(LogTemp, Warning, TEXT("ZMQ>>>>Subport : %f"), DummyEllipseData);
+		
+		DummyData = PupilHelper.GetDummyElipseData();
+		NewPupilDataEvent.Broadcast();
+		UE_LOG(LogTemp, Warning, TEXT("ZMQ>>>>Subport : %f"), DummyData);
 
 	}
 	return 1;
@@ -104,9 +104,13 @@ FPupilMsgWorker* FPupilMsgWorker::StartListening()
 void FPupilMsgWorker::StopListening()
 {
 	if (Thread != nullptr) {
-		this->Stop();
-		Thread->WaitForCompletion();
+		Instance->Shutdown();
 		delete Thread;
 		Thread = nullptr;
 	}
+}
+
+void OnNewData()
+{
+	
 }

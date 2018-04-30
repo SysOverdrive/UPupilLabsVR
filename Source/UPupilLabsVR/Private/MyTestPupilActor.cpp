@@ -13,10 +13,20 @@ AMyTestPupilActor::AMyTestPupilActor()
 void AMyTestPupilActor::BeginPlay()
 {	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("PupilActor>>>>BeginPlay"));
-	PupilMessagingListener =FPupilMsgWorker::StartListening();
+	PupilComm = FPupilMsgWorker::StartListening();
+	PupilComm->OnNewData().AddUObject(this, &AMyTestPupilActor::OnNewPupilData);
+
+	
+
 }
 // Called every frame
 void AMyTestPupilActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AMyTestPupilActor::OnNewPupilData()
+{
+	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
+
 }

@@ -26,6 +26,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	FPupilMsgWorker* PupilMessagingListener;
+	FPupilMsgWorker* PupilComm;
+	void OnNewPupilData();
 
 };

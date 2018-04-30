@@ -15,11 +15,15 @@
  */
 class FPupilMsgWorker : public FRunnable
 {
-	public:
+public:
 	/**Starts listening to Pupil Service. Static so It can be called also outside of the Thread Context  */
 	static FPupilMsgWorker* StartListening();
 	/**Stops the Thread and ensures its completion before deleting it*/
-	 void StopListening();
+	void StopListening();
+
+public:
+	DECLARE_EVENT(FPupilMsgWorker, DummyEvent)
+	DummyEvent& OnNewData()  { return NewPupilDataEvent; }
 
 private:
 	/** Constructor */
@@ -38,6 +42,7 @@ private:
 	/** Shuts down the thread. Static so it can easily be called from outside the thread context */
 	static void Shutdown();
 
+
 private:
 	/**Static instance variable that ensures the Singleton behavior */
 	static FPupilMsgWorker* Instance;
@@ -50,4 +55,8 @@ private:
 	bool bSuccessfulyInit;
 
 	bool bRunning;
+
+	DummyEvent NewPupilDataEvent;
+
+	float DummyData;
 };
