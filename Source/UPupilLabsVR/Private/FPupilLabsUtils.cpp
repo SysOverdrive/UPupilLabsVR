@@ -10,7 +10,6 @@ FPupilLabsUtils::FPupilLabsUtils()
 	SubSocket = ConnectToSubport(std::move(ReqSocket), PupilTopic);
 }
 
-
 FPupilLabsUtils::~FPupilLabsUtils()
 {
 	ZmqContext = nullptr;
