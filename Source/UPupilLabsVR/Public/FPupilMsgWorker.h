@@ -22,7 +22,8 @@ public:
 	void StopListening();
 
 public:
-	DECLARE_EVENT(FPupilMsgWorker, DummyEvent)
+	DECLARE_EVENT_OneParam(FPupilMsgWorker, DummyEvent, GazeStruct*);
+//	DECLARE_EVENT(FPupilMsgWorker, DummyEvent)
 	DummyEvent& OnNewData()  { return NewPupilDataEvent; }
 
 private:
@@ -58,5 +59,5 @@ private:
 
 	DummyEvent NewPupilDataEvent;
 
-	float DummyData;
+	GazeStruct DummyData;
 };

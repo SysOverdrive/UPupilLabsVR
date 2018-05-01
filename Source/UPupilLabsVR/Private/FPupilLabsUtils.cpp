@@ -6,8 +6,8 @@
 FPupilLabsUtils::FPupilLabsUtils()
 {
 	UE_LOG(LogTemp, Warning, TEXT("FPupilLabsutil>>>>Initialized"));
-	zmq::socket_t ReqSocket = ConnectToZmqPupilPublisher(Port);
-	SubSocket = ConnectToSubport(std::move(ReqSocket), PupilTopic);
+//	zmq::socket_t ReqSocket = ConnectToZmqPupilPublisher(Port);
+//	SubSocket = ConnectToSubport(std::move(ReqSocket), PupilTopic);
 }
 
 FPupilLabsUtils::~FPupilLabsUtils()
@@ -59,6 +59,19 @@ GazeStruct FPupilLabsUtils::ConvertMsgPackToGazeStruct(zmq::message_t info)
 	deserialized.convert(ReceivedGazeStruct);
 
 	return ReceivedGazeStruct;
+}
+
+/**This method returns a value from the deepest member of the structure to check if everything is working properly during development
+*TODO: Delete after the plugin is finished */
+GazeStruct FPupilLabsUtils::GetDummyHomeData()
+{
+	GazeStruct MyDummyStruct = {  "gaze.2d",
+		{50.0, 50.0},
+		{{ "gaze.2d", 0.0, 
+		{{ 50.0, 50.0 }, { 50.0, 50.0 }, 68.0 }, 40.0, { 50.0, 50.0 }, 45.0, 
+			"method:c++2D", 1.0} }
+	};
+	return MyDummyStruct;
 }
 
 /**This method returns a value from the deepest member of the structure to check if everything is working properly during development

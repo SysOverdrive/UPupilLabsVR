@@ -16,8 +16,6 @@ void AMyTestPupilActor::BeginPlay()
 	PupilComm = FPupilMsgWorker::StartListening();
 	PupilComm->OnNewData().AddUObject(this, &AMyTestPupilActor::OnNewPupilData);
 
-	
-
 }
 // Called every frame
 void AMyTestPupilActor::Tick(float DeltaTime)
@@ -25,8 +23,9 @@ void AMyTestPupilActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AMyTestPupilActor::OnNewPupilData()
+void AMyTestPupilActor::OnNewPupilData(GazeStruct *GazeStructure)
 {
+	this->ReceivedGazeStructure = GazeStructure;
 	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
-
+	//UE_LOG(LogTemp, Warning, TEXT("[%s][%d] Dummy Data : %f"), TEXT(__FUNCTION__), __LINE__, &this->ReceivedGazeStructure);
 }

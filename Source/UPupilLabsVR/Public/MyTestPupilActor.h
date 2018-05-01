@@ -22,11 +22,17 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	///--BEGIN RAYCAST--///
+	//Method for receiving the GazeStructure for The RayCasting
+	void OnNewPupilData(GazeStruct *GazeStructure);
+	//Received Data From The Worker's Event
+	GazeStruct *ReceivedGazeStructure;
+	///--END RAYCAST--///
+
 
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	FPupilMsgWorker* PupilComm;
-	void OnNewPupilData();
-
 };

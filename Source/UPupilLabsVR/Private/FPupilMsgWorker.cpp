@@ -49,11 +49,10 @@ uint32 FPupilMsgWorker::Run()
 	while (bRunning && bSuccessfulyInit)
 	{
 		FPlatformProcess::Sleep(0.32);
-
 		
-		DummyData = PupilHelper.GetDummyElipseData();
-		NewPupilDataEvent.Broadcast();
-		UE_LOG(LogTemp, Warning, TEXT("ZMQ>>>>Subport : %f"), DummyData);
+		DummyData = PupilHelper.GetDummyHomeData();
+		NewPupilDataEvent.Broadcast(&DummyData);
+	//	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] Dummy Data : %f"), TEXT(__FUNCTION__), __LINE__, DummyData);
 
 	}
 	return 1;

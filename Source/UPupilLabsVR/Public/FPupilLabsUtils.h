@@ -35,6 +35,8 @@ public:
 	~FPupilLabsUtils();
 	/**Public Method accesible by the Worker Thread such that we can always do a sanity check*/
 	float GetDummyElipseData();
+	//TODO DELETE AFTER HOME IMPLEMENTATION
+	GazeStruct GetDummyHomeData();
 
 private:
 	/**Method that starts connecting to the Response Socket of the Pupil Service using a Request Socket */
