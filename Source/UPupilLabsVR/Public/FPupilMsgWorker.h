@@ -7,6 +7,11 @@
 #include "RunnableThread.h"
 #include "GenericPlatformProcess.h"
 #include "PlatformProcess.h"
+
+#include "DrawDebugHelpers.h"
+#include "Engine/Engine.h"
+#include "Editor.h"
+#include "GameFramework/PlayerController.h"
 #include "FPupilLabsUtils.h"
 
 /**
@@ -36,18 +41,14 @@ private:
 	virtual void Stop() override;
 	virtual uint32 Run() override;
 	/* End FRunnable interface */
-
 	/** Makes sure this thread has stopped properly */
 	void EnsureCompletion();
-
 	/** Shuts down the thread. Static so it can easily be called from outside the thread context */
 	static void Shutdown();
-
 
 private:
 	/**Static instance variable that ensures the Singleton behavior */
 	static FPupilMsgWorker* Instance;
-
 	/** Thread to run the worker FRunnable on */
 	FRunnableThread* Thread;
 
@@ -59,5 +60,5 @@ private:
 
 	DummyEvent NewPupilDataEvent;
 
-	GazeStruct DummyData;
+	GazeStruct ReceivedGazeStructure;
 };

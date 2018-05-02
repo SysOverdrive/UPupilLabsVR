@@ -50,10 +50,8 @@ uint32 FPupilMsgWorker::Run()
 	{
 		FPlatformProcess::Sleep(0.32);
 		
-		DummyData = PupilHelper.GetDummyHomeData();
-		NewPupilDataEvent.Broadcast(&DummyData);
-	//	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] Dummy Data : %f"), TEXT(__FUNCTION__), __LINE__, DummyData);
-
+		ReceivedGazeStructure = PupilHelper.GetGazeStructure();
+		NewPupilDataEvent.Broadcast(&ReceivedGazeStructure);
 	}
 	return 1;
 }

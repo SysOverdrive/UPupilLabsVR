@@ -3,8 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "Core.h"
+#include "GameFramework/Actor.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "FPupilMsgWorker.h"
 #include "MyTestPupilActor.generated.h"
@@ -26,6 +27,7 @@ protected:
 	///--BEGIN RAYCAST--///
 	//Method for receiving the GazeStructure for The RayCasting
 	void OnNewPupilData(GazeStruct *GazeStructure);
+	void PerformRaycast(UWorld* CurrentWorld);
 	//Received Data From The Worker's Event
 	GazeStruct *ReceivedGazeStructure;
 	///--END RAYCAST--///

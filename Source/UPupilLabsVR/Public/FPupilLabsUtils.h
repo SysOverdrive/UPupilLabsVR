@@ -35,6 +35,8 @@ public:
 	~FPupilLabsUtils();
 	/**Public Method accesible by the Worker Thread such that we can always do a sanity check*/
 	float GetDummyElipseData();
+	/**Public Method accesible by the Worker Thread such that we can always do a sanity check*/
+	GazeStruct GetGazeStructure();
 	//TODO DELETE AFTER HOME IMPLEMENTATION
 	GazeStruct GetDummyHomeData();
 
