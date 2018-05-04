@@ -40,17 +40,35 @@ void AMyTestPupilActor::PerformRaycast(UWorld* CurrentWorld)
 	APlayerController* UPupilPlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	FVector CameraLocation;
 	FRotator CameraRotator;
-
+	int x, y;
+	float Confidence;
+	//TEST Eye Gazing data
+	if(ReceivedGazeStructure!=nullptr){
+	x = this->ReceivedGazeStructure->base_data.pupil.norm_pos.x;
+	y = this->ReceivedGazeStructure->base_data.pupil.norm_pos.y;
+	 Confidence = this->ReceivedGazeStructure->base_data.pupil.confidence;
+	}
+	//TEST Eye Gazing data
 	UPupilPlayerController->GetPlayerViewPoint(CameraLocation, CameraRotator);
 	FHitResult* HitResult = new FHitResult(ForceInit);
 	const FVector StartTrace = CameraLocation;
 	const FVector ForwardVector = CameraRotator.Vector();
-	FVector EndTrace = ((ForwardVector *5000.f) + StartTrace);
+	FVector *EndTrace = new FVector();
+	*EndTrace = ((ForwardVector *5000.f) + StartTrace);
+/*	Experimental
+	if (Confidence >= 0.1 && ReceivedGazeStructure != nullptr)
+	{
+		 EndTrace = new FVector(x, y, 0);
+	}
+	else {
+		EndTrace = new FVector(x, y, 0);
+
+	}*/
 	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 
-	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, EndTrace, ECC_Visibility, *TraceParams))
+	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, *EndTrace, ECC_Visibility, *TraceParams))
 	{
-		DrawDebugLine(GetWorld(), StartTrace, EndTrace, FColor(238, 0, 238), true);
+		DrawDebugLine(GetWorld(), StartTrace, *EndTrace, FColor(238, 0, 238), true);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitResult->Actor->GetName()));
 	}
 }
