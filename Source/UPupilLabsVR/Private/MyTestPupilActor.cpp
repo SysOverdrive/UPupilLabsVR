@@ -1,16 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright 2018, Institute for Artificial Intelligence - University of Bremen
+// Author: Chifor Tudor
 
 #include "MyTestPupilActor.h"
-#include "UnrealString.h"
-// Sets default values
-#include "atlstr.h"
-
-//#define   MSGPACK_USE_CPP03
-#include "msgpack.hpp"
-
-using namespace zmq;
-using namespace std;
-
 
 AMyTestPupilActor::AMyTestPupilActor()
 {
@@ -20,6 +11,7 @@ AMyTestPupilActor::AMyTestPupilActor()
 
 // Called when the game starts or when spawned
 void AMyTestPupilActor::BeginPlay()
+<<<<<<< HEAD
 {
 	Super::BeginPlay();
 
@@ -94,10 +86,66 @@ msgpack::object obj(result.get());
 
 	UE_LOG(LogTemp, Warning, TEXT("ZMQ >>>>Ceva "));
 	//std::cout << deserialized << std::endl;
+=======
+{	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("PupilActor>>>>BeginPlay"));
+	PupilComm = FPupilMsgWorker::StartListening();
+	PupilComm->OnNewData().AddUObject(this, &AMyTestPupilActor::OnNewPupilData);
+
+
 }
-//
-////Freaky String Stuff
-//std::vector<char> bytes(sendSubPort.begin(), sendSubPort.end());
-//bytes.push_back('\0');
-//char *c = &bytes[0];
-////Freaky String Stuff
+// Called every frame
+void AMyTestPupilActor::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	FConstCameraActorIterator MyTestCameraIterator = GetWorld()->GetAutoActivateCameraIterator();
+	UWorld* CurrentWorld = GetWorld();
+	PerformRaycast(CurrentWorld);
+}
+
+void AMyTestPupilActor::OnNewPupilData(GazeStruct *GazeStructure)
+{
+	this->ReceivedGazeStructure = GazeStructure;
+	//UE_LOG(LogTemp, Warning, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
+	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] Norm Data : %f"), TEXT(__FUNCTION__), __LINE__, this->ReceivedGazeStructure->base_data.pupil.ellipse.center.x);
+}
+
+void AMyTestPupilActor::PerformRaycast(UWorld* CurrentWorld)
+{
+	APlayerController* UPupilPlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	FVector CameraLocation;
+	FRotator CameraRotator;
+	int x, y;
+	float Confidence;
+	//TEST Eye Gazing data
+	if(ReceivedGazeStructure!=nullptr){
+	x = this->ReceivedGazeStructure->base_data.pupil.norm_pos.x;
+	y = this->ReceivedGazeStructure->base_data.pupil.norm_pos.y;
+	 Confidence = this->ReceivedGazeStructure->base_data.pupil.confidence;
+	}
+	//TEST Eye Gazing data
+	UPupilPlayerController->GetPlayerViewPoint(CameraLocation, CameraRotator);
+	FHitResult* HitResult = new FHitResult(ForceInit);
+	const FVector StartTrace = CameraLocation;
+	const FVector ForwardVector = CameraRotator.Vector();
+	FVector *EndTrace = new FVector();
+	*EndTrace = ((ForwardVector *5000.f) + StartTrace);
+/*	Experimental
+	if (Confidence >= 0.1 && ReceivedGazeStructure != nullptr)
+	{
+		 EndTrace = new FVector(x, y, 0);
+	}
+	else {
+		EndTrace = new FVector(x, y, 0);
+
+	}*/
+	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
+
+	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, *EndTrace, ECC_Visibility, *TraceParams))
+	{
+		DrawDebugLine(GetWorld(), StartTrace, *EndTrace, FColor(238, 0, 238), true);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitResult->Actor->GetName()));
+	}
+>>>>>>> e95bee50cd2cfed5145f81d174d611fb29a4aad2
+}
