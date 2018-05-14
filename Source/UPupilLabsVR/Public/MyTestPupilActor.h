@@ -18,6 +18,9 @@
 #define   MSGPACK_USE_CPP03
 #include "msgpack.hpp"
 
+#include "PupilMsgWorker.h"
+
+
 #include "MyTestPupilActor.generated.h"
 
 struct norm_pos {
