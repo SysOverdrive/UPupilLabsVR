@@ -8,6 +8,7 @@ FPupilLabsUtils::FPupilLabsUtils()
 	UE_LOG(LogTemp, Warning, TEXT("FPupilLabsutil>>>>Initialized"));
 	zmq::socket_t ReqSocket = ConnectToZmqPupilPublisher(Port);
 	SubSocket = ConnectToSubport(std::move(ReqSocket), PupilTopic);
+	SynchronizePupilServiceTimestamp();
 }
 
 FPupilLabsUtils::~FPupilLabsUtils()
@@ -62,8 +63,6 @@ GazeStruct FPupilLabsUtils::ConvertMsgPackToGazeStruct(zmq::message_t info)
 	return ReceivedGazeStruct;
 }
 
-
-
 std::string FPupilLabsUtils::ReceiveSubPort(zmq::socket_t ReqSocket)
 {
 	zmq::message_t Reply;
@@ -72,6 +71,28 @@ std::string FPupilLabsUtils::ReceiveSubPort(zmq::socket_t ReqSocket)
 	LogSubPortUE(SubportReply);
 
 	return SubportReply;
+}
+/**Todo Must be placed at the start of the Calibration*/
+void FPupilLabsUtils::SynchronizePupilServiceTimestamp()
+{
+	//This is a different Socket such that it does not interfere with the other sockets //TODO Ask andrei if this is the best approuch
+	zmq::socket_t TimeReqSocket = ConnectToZmqPupilPublisher(Port);
+	
+	float CurrentUETimestamp = FPlatformTime::Seconds();
+	FString TheFloatStr = FString::SanitizeFloat(CurrentUETimestamp);
+	std::string SendCurrentUETimeStamp = u8"T " + std::to_string(CurrentUETimestamp);
+	FString SendTimestamp(SendCurrentUETimeStamp.c_str());
+	UE_LOG(LogTemp, Warning, TEXT("Current TimeStamp %s "), *SendTimestamp);
+
+	zmq::message_t subport_request(17);
+	memcpy(subport_request.data(), SendCurrentUETimeStamp.c_str(), SendCurrentUETimeStamp.length());
+	TimeReqSocket.send(subport_request);
+	//We always have to receive the data so it is non blocking
+	zmq::message_t Reply;
+	TimeReqSocket.recv(&Reply);
+	std::string  TimeStampReply = std::string(static_cast<char*>(Reply.data()), Reply.size());
+	LogSubPortUE(TimeStampReply); //ToDo delete after implementation
+
 }
 
 void FPupilLabsUtils::LogSubPortUE(std::string SubportReply)
@@ -82,6 +103,7 @@ void FPupilLabsUtils::LogSubPortUE(std::string SubportReply)
 
 GazeStruct FPupilLabsUtils::GetGazeStructure()
 {
+	
 	zmq::message_t topic;
 	SubSocket->recv(&topic);
 	zmq::message_t info;
@@ -94,29 +116,4 @@ GazeStruct FPupilLabsUtils::GetGazeStructure()
 //	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]YYYYYYY : %f"), TEXT(__FUNCTION__), __LINE__, y);
 
 	return ReceivedGazeStruct;
-}
-
-/**TODO: Delete after the plugin is finished */
-GazeStruct FPupilLabsUtils::GetDummyHomeData()
-{
-	GazeStruct MyDummyStruct = { "gaze.2d",
-	{ 50.0, 50.0 },
-	{ { "gaze.2d", 0.0,
-	{ { 50.0, 50.0 },{ 50.0, 50.0 }, 68.0 }, 40.0,{ 50.0, 50.0 }, 45.0,
-		"method:c++2D", 1.0 } }
-	};
-	return MyDummyStruct;
-}
-
-/**This method returns a value from the deepest member of the structure to check if everything is working properly during development
-*TODO: Delete after the plugin is finished */
-float FPupilLabsUtils::GetDummyElipseData()
-{
-	zmq::message_t topic;
-	SubSocket->recv(&topic);
-	zmq::message_t info;
-	SubSocket->recv(&info);
-	GazeStruct ReceivedGazeStruct = ConvertMsgPackToGazeStruct(std::move(info));
-
-	return ReceivedGazeStruct.base_data.pupil.ellipse.center.x;
 }

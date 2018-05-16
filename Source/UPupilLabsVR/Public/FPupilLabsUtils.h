@@ -33,12 +33,8 @@ public:
 	FPupilLabsUtils();
 	/** Destructor */
 	~FPupilLabsUtils();
-	/**Public Method accesible by the Worker Thread such that we can always do a sanity check*/
-	float GetDummyElipseData();
-	/**Public Method accesible by the Worker Thread such that we can always do a sanity check*/
+	/**Public Method accesible by the Worker Thread such that we can get the Gaze Structure Data*/
 	GazeStruct GetGazeStructure();
-	//TODO DELETE AFTER HOME IMPLEMENTATION
-	GazeStruct GetDummyHomeData();
 
 private:
 	/**Method that starts connecting to the Response Socket of the Pupil Service using a Request Socket */
@@ -47,12 +43,13 @@ private:
 	zmq::socket_t* ConnectToSubport(zmq::socket_t ReqSocket, std::string Topic);
 	/**Method that receives and logs the SubPort */
 	std::string ReceiveSubPort(zmq::socket_t ReqSocket);
+	/**Method  that synchronizes the clock of Pupil Service with the current timestamp of this client. Pupil Service acts as a follower for this  */
+	void SynchronizePupilServiceTimestamp();
 	 /**Helper Method that logs the SubPort */
 	 void LogSubPortUE(std::string SubportReply);
 	/**Helper Method that converts the binary message into a C structure using msgpack*/
 	 GazeStruct ConvertMsgPackToGazeStruct(zmq::message_t info);
-
-
+	
 private:
 	 /**Context for Zmq to rely on*/
 	zmq::context_t* ZmqContext;
