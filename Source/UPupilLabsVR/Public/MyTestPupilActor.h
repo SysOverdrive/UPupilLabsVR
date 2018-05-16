@@ -7,13 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
 
-<<<<<<< HEAD
-#include "PupilMsgWorker.h"
-
-
-=======
 #include "FPupilMsgWorker.h"
->>>>>>> e95bee50cd2cfed5145f81d174d611fb29a4aad2
 #include "MyTestPupilActor.generated.h"
 
 
