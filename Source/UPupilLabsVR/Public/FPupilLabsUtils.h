@@ -60,7 +60,7 @@ private:
 	zmq::socket_t *SubSocket;
 	/**Begin Hardcoded strings that define the connection and type of Subscription */
 	std::string Addr = "tcp://127.0.0.1:";//TODO UPROPERTY Options
-	std::string Port = "55555";
+	std::string Port = "50020";
 	std::string PupilTopic = u8"gaze"; //TODO Implement Options With UObject
 	/**End Hardcoded strings that define the connection and type of Subscription */
 };

@@ -87,6 +87,12 @@ GazeStruct FPupilLabsUtils::GetGazeStructure()
 	zmq::message_t info;
 	SubSocket->recv(&info);
 	GazeStruct ReceivedGazeStruct = ConvertMsgPackToGazeStruct(std::move(info));
+
+	double x = ReceivedGazeStruct.base_data.pupil.norm_pos.x;
+	double y = ReceivedGazeStruct.base_data.pupil.norm_pos.y;
+//	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]XXXXXXX : %f"), TEXT(__FUNCTION__), __LINE__, x);
+//	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]YYYYYYY : %f"), TEXT(__FUNCTION__), __LINE__, y);
+
 	return ReceivedGazeStruct;
 }
 

@@ -15,17 +15,15 @@ void AMyTestPupilActor::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("PupilActor>>>>BeginPlay"));
 	PupilComm = FPupilMsgWorker::StartListening();
 	PupilComm->OnNewData().AddUObject(this, &AMyTestPupilActor::OnNewPupilData);
-
+	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
 
 }
 // Called every frame
 void AMyTestPupilActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	FConstCameraActorIterator MyTestCameraIterator = GetWorld()->GetAutoActivateCameraIterator();
-	UWorld* CurrentWorld = GetWorld();
-	PerformRaycast(CurrentWorld);
+
 }
 
 void AMyTestPupilActor::OnNewPupilData(GazeStruct *GazeStructure)
@@ -33,42 +31,54 @@ void AMyTestPupilActor::OnNewPupilData(GazeStruct *GazeStructure)
 	this->ReceivedGazeStructure = GazeStructure;
 	//UE_LOG(LogTemp, Warning, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
 	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] Norm Data : %f"), TEXT(__FUNCTION__), __LINE__, this->ReceivedGazeStructure->base_data.pupil.ellipse.center.x);
+	UWorld* CurrentWorld = GetWorld();
+	PerformRaycast(CurrentWorld);
 }
 
 void AMyTestPupilActor::PerformRaycast(UWorld* CurrentWorld)
 {
 	APlayerController* UPupilPlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	FVector CameraLocation;
-	FRotator CameraRotator;
-	int x, y;
-	float Confidence;
-	//TEST Eye Gazing data
-	if(ReceivedGazeStructure!=nullptr){
-	x = this->ReceivedGazeStructure->base_data.pupil.norm_pos.x;
-	y = this->ReceivedGazeStructure->base_data.pupil.norm_pos.y;
-	 Confidence = this->ReceivedGazeStructure->base_data.pupil.confidence;
-	}
-	//TEST Eye Gazing data
-	UPupilPlayerController->GetPlayerViewPoint(CameraLocation, CameraRotator);
-	FHitResult* HitResult = new FHitResult(ForceInit);
-	const FVector StartTrace = CameraLocation;
-	const FVector ForwardVector = CameraRotator.Vector();
-	FVector *EndTrace = new FVector();
-	*EndTrace = ((ForwardVector *5000.f) + StartTrace);
-/*	Experimental
-	if (Confidence >= 0.1 && ReceivedGazeStructure != nullptr)
-	{
-		 EndTrace = new FVector(x, y, 0);
-	}
-	else {
-		EndTrace = new FVector(x, y, 0);
 
-	}*/
+	const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	FVector TraceStart;
+	FVector TraceEnd;
+	float XGaze = ReceivedGazeStructure->base_data.pupil.norm_pos.x;
+	float YGaze = ReceivedGazeStructure->base_data.pupil.norm_pos.y;
+	if (GEngine->GameViewport && GEngine->GameViewport->Viewport)
+	{
+		const FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+		FVector WorldLocation;
+		FVector WorldDirection;
+
+		if (ReceivedGazeStructure != nullptr && UPupilPlayerController->DeprojectScreenPositionToWorld(ViewportSize.X * XGaze, ViewportSize.Y * (1.0f - YGaze), WorldLocation, WorldDirection))
+		{
+			const float TraceDistance = 250.0f; // Your desired trace distance (in UU - centimiters)
+			TraceStart = WorldLocation;
+			TraceEnd = TraceStart + WorldDirection * TraceDistance;
+		}
+	}
+
+	FHitResult* HitResult = new FHitResult(ForceInit);
 	FCollisionQueryParams* TraceParams = new FCollisionQueryParams();
 
-	if(GetWorld()->LineTraceSingleByChannel(*HitResult, StartTrace, *EndTrace, ECC_Visibility, *TraceParams))
+	if (GetWorld()->LineTraceSingleByChannel(*HitResult, TraceStart, TraceEnd, ECC_Visibility, *TraceParams))
 	{
-		DrawDebugLine(GetWorld(), StartTrace, *EndTrace, FColor(238, 0, 238), true);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitResult->Actor->GetName()));
+	//	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]RAYTRACE XXX : %f"), TEXT(__FUNCTION__), __LINE__, XGaze);
+	//	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]RAYTRACE YYY : %f"), TEXT(__FUNCTION__), __LINE__, YGaze);
+		FVector_NetQuantize var = HitResult->ImpactPoint;
+		FVector HitPointLocation = var;
+		DrawDebugPoint(GetWorld(), TraceEnd, 20, FColor(0, 255, 127), false, 1.03);
+
+		DrawDebugPoint(GetWorld(), HitPointLocation, 20, FColor(0, 0, 238), false, 0.03);
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor(238, 0, 238), true);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("End Point: %d, %d, %d"), TraceEnd.X, TraceEnd.Y, TraceEnd.Z));
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("You hit: %s"), *HitResult->Actor->GetName()));
 	}
 }
+
+////MOUSE TEST
+//FMatrix CameraViewMatrix; //Todo maybe this is the way
+//FMatrix CameraProjectionMatrix;
+//FMatrix inv = Inverse(CameraProjectionMatrix * CameraViewMatrix);
+////
