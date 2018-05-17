@@ -7,6 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "PupilCalibrationPawn.h"
 #include "Camera/CameraComponent.h"
+#include "HUD/HUDWidget.h"
+#include "TimerManager.h"
 
 void APupilCalibrationGameMode::BeginCalibration(ECalibrationType Calibration_Type)
 {
@@ -25,19 +27,103 @@ void APupilCalibrationGameMode::BeginCalibration(ECalibrationType Calibration_Ty
 	GetWorld()->GetTimerManager().SetTimer(FocusMovementTimer, TimerDelegate, UpdateFocusLocationInterval, true);
 }
 
+void APupilCalibrationGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	HUD = Cast<APupilCalibrationPawn>(UGameplayStatics::GetPlayerPawn(this, 0))->GetHUD();
+	HUD->SetMessage(FText::FromString("Attempting to connect to the pupil service/capture.\n Please make sure it's running in the background."));
+	ConnectToPupilService();
+}
+
+void APupilCalibrationGameMode::ConnectToPupilService()
+{
+	// TODO: Interface with Pupil Backend.
+	OnConnectToPupilServiceResponse(bPassConnection);
+}
+
+void APupilCalibrationGameMode::OnConnectToPupilServiceResponse(bool bSucceeded)
+{
+	if (bSucceeded)
+	{
+		HUD->SetMessage(FText::FromString("Connection to Pupil Successful.\n Press 'C' to start the calibration process."));
+		RenderEyeCamera(0);
+		RenderEyeCamera(1);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to connect to Pupil Service. Retrying."));
+		FTimerHandle th;
+		GetWorld()->GetTimerManager().SetTimer(th, this, &APupilCalibrationGameMode::ConnectToPupilService, ConnectionRetryInterval, false);
+	}
+}
+
 void APupilCalibrationGameMode::UpdatePupilTrackingState()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("UpdatePupilTrackingState"));
+	// TODO: Interface with Pupil Backend.
 }
 
-void APupilCalibrationGameMode::UpdatePupilTrackingStateResponse()
+void APupilCalibrationGameMode::UpdatePupilTrackingStateResponse(bool bSucceeded, EPupilTrackingState NewTrackingState)
 {
+	if (bSucceeded)
+	{
+		PupilTrackingState = NewTrackingState;
+		FocusActor->UpdateMaterial(NewTrackingState);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to update Pupil Tracking State"));
+	}
 }
 
-void APupilCalibrationGameMode::OnPupilTrackingStateUpdated(EPupilTrackingState NewTrackingState)
+void APupilCalibrationGameMode::RenderEyeCamera(uint8 EyeIndex)
 {
-	PupilTrackingState = NewTrackingState;
-	FocusActor->UpdateMaterial(NewTrackingState);
+	// TODO: Interface with Pupil Backend.
+	OnRenderEyeCameraResponse(bPassRenderEyes, 0);
+	OnRenderEyeCameraResponse(bPassRenderEyes, 1);
+}
+
+void APupilCalibrationGameMode::OnRenderEyeCameraResponse(bool bSucceeded, uint8 EyeIndex)
+{
+	if (bSucceeded)
+	{
+		FTimerManager& TM = GetWorld()->GetTimerManager();
+		if (!TM.IsTimerActive(RenderEyeTimer))
+		{
+			float UpdateInterval = 1.f / EyeCameraFPS;
+			TM.SetTimer(RenderEyeTimer, this, &APupilCalibrationGameMode::UpdateEyeDisplay, UpdateInterval, true);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to start rendering %s eye camera. Retrying."), EyeIndex == 0 ? *FString("Left") : *FString("Right"));
+		FTimerHandle th;
+		FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &APupilCalibrationGameMode::RenderEyeCamera, EyeIndex);
+		GetWorld()->GetTimerManager().SetTimer(th, TimerDelegate, RenderEyeRetryInterval, false);
+	}
+}
+
+void APupilCalibrationGameMode::UpdateEyeDisplay()
+{
+	// TODO: Interface with Pupil Backend.
+
+	// TODO: Create default image for eye rendering.
+	const uint8* Data = new uint8[200 * 200 * 3];
+
+	OnUpdateEyeDisplayResponse(bPassUpdateEyeDisplay, 0, Data);
+	OnUpdateEyeDisplayResponse(bPassUpdateEyeDisplay, 1, Data);
+}
+
+void APupilCalibrationGameMode::OnUpdateEyeDisplayResponse(bool bSucceeded, uint8 EyeIndex, const uint8*& Data)
+{
+	if (bSucceeded)
+	{
+		// TODO: Don't enable this until the default image is working or it stalls the engine.
+		//HUD->UpdateEyeImage(EyeIndex, Data);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to update %s eye display"), EyeIndex == 0 ? *FString("Left") : *FString("Right"));
+	}
 }
 
 void APupilCalibrationGameMode::MoveFocusToNextLocation(bool bUpdateLocationIndex)

@@ -5,6 +5,8 @@
 #include "Components/SceneComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/WidgetComponent.h"
+#include "HUD/HUDWidget.h"
 
 
 // Sets default values
@@ -22,13 +24,16 @@ APupilCalibrationPawn::APupilCalibrationPawn()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(VRWorldAlignedPosition);
+
+	HUD = CreateDefaultSubobject<UWidgetComponent>(TEXT("HUD"));
+	HUD->SetupAttachment(Camera);
 }
 
 // Called when the game starts or when spawned
 void APupilCalibrationPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	UGameplayStatics::GetPlayerController(this, 0)->SetViewTarget(this);
 }
 
 // Called every frame
@@ -42,5 +47,10 @@ void APupilCalibrationPawn::SetupPlayerInputComponent(UInputComponent* PlayerInp
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+UHUDWidget* APupilCalibrationPawn::GetHUD()
+{
+	return Cast<UHUDWidget>(HUD->GetUserWidgetObject());
 }
 

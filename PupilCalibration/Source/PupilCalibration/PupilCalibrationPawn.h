@@ -20,6 +20,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class UCameraComponent* Camera;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class UWidgetComponent* HUD;
+
 public:
 	// Sets default values for this pawn's properties
 	APupilCalibrationPawn();
@@ -35,6 +38,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	
-	
+	class UHUDWidget* GetHUD();
 };

@@ -8,7 +8,7 @@ public class PupilCalibration : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UPupilLabsVR" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UPupilLabsVR", "RHI", "RenderCore", "ShaderCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

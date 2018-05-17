@@ -22,7 +22,19 @@ private:
 	UPROPERTY()
 		FTimerHandle FocusMovementTimer;
 
+	UPROPERTY()
+		FTimerHandle RenderEyeTimer;
+
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TESTING")
+		bool bPassConnection = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TESTING")
+		bool bPassRenderEyes = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TESTING")
+		bool bPassUpdateEyeDisplay = false;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pupil Calibration")
 		float UpdatePupilTrackingInterval = 0.05f;
 
@@ -31,6 +43,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pupil Calibration")
 		float FocusScale = 1.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pupil Calibration|Connection")
+		float ConnectionRetryInterval = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pupil Calibration|Eye Rendering")
+		float RenderEyeRetryInterval = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pupil Calibration")
+		int32 EyeCameraFPS = 60;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pupil Calibration|2D")
 		TArray<FVector2D> CalibrationLocations_2D;
@@ -41,11 +62,18 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Pupil Calibration|3D")
 		TArray<FVector> CalibrationLocations_3D;
 
+
 	UPROPERTY()
 		class AFocusActor* FocusActor;
 
 	UPROPERTY()
 		ECalibrationType CalibrationType = ECalibrationType::MAX;
+
+	UPROPERTY()
+		class UHUDWidget* HUD;
+
+	UPROPERTY()
+		bool bIsConnectedToPupilService = false;
 
 protected:
 	UPROPERTY()
@@ -54,15 +82,30 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable)
 		void BeginCalibration(ECalibrationType Calibration_Type = ECalibrationType::_2D);
+
 protected:
+	virtual void BeginPlay() override;
+
+	UFUNCTION()
+		void ConnectToPupilService();
+
+	UFUNCTION()
+		void OnConnectToPupilServiceResponse(bool bSucceeded);
+
 	UFUNCTION()
 		void UpdatePupilTrackingState();
 
 	UFUNCTION()
-		void UpdatePupilTrackingStateResponse();
+		void UpdatePupilTrackingStateResponse(bool bSucceeded, EPupilTrackingState NewTrackingState);
+
+	void RenderEyeCamera(uint8 EyeIndex);
+
+	void OnRenderEyeCameraResponse(bool bSucceeded, uint8 EyeIndex);
 
 	UFUNCTION()
-		void OnPupilTrackingStateUpdated(EPupilTrackingState NewTrackingState);
+		void UpdateEyeDisplay();
+
+	void OnUpdateEyeDisplayResponse(bool bSucceeded, uint8 EyeIndex, const uint8*& Data);
 
 	UFUNCTION()
 		void MoveFocusToNextLocation(bool bUpdateLocationIndex = true);
