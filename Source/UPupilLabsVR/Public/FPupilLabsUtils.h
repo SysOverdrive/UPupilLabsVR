@@ -6,6 +6,7 @@
 #include "Core.h"
 #include "LogMacros.h"
 #include "zmq.hpp"
+#include "zmq_addon.hpp"
 /**
 * \MSGPACK_USE_CPP03 has been applied to use the CPP03 _t implementations instead of _type.
 *  Any usage of CPP011 calls from msgpack will not work.
@@ -35,14 +36,37 @@ public:
 	~FPupilLabsUtils();
 	/**Public Method accesible by the Worker Thread such that we can get the Gaze Structure Data*/
 	GazeStruct GetGazeStructure();
+	/**Public Method To be called when we do not need to receive any data from pupil service*/
+	void CloseSubSocket();
+	///CALIBRATION METHODS///
+	/*
+	 * Todo s: Calibration class 
+	 * pass data thorugh hre
+	 * pupiltools.cs
+	 * Implement Multipart message
+	 */
+	/**Position float should be a vector todo*/
+	void InitializeCalibration(zmq::socket_t* ReqSocket);
+	void UpdateCalibration();
+	bool StartEyeProcesses(zmq::socket_t* ReqSocket);
+	void PackStartEyeNotification(zmq::socket_t* ReqSocket, int EyeId);
+
+	void AddCalibrationPointReferencePosition(float position, float timestamp);
+	void SendMultipartMessage(zmq::socket_t *SubSocket, zmq::message_t Reply);
+	bool StartEyeProcesses();
+	///END CALIBRATION METHODS///
+
 
 private:
+	///CALIBRATION METHODS
+	bool SetDetectionMode(zmq::socket_t* ReqSocket);
+
 	/**Method that starts connecting to the Response Socket of the Pupil Service using a Request Socket */
 	zmq::socket_t ConnectToZmqPupilPublisher(std::string ReqPort);
 	/**Method that connects to the Subport of the Publisher given from the Request Socket*/
-	zmq::socket_t* ConnectToSubport(zmq::socket_t ReqSocket, std::string Topic);
+	zmq::socket_t* ConnectToSubport(zmq::socket_t* ReqSocket, const std::string Topic);
 	/**Method that receives and logs the SubPort */
-	std::string ReceiveSubPort(zmq::socket_t ReqSocket);
+	std::string ReceiveSubPort(zmq::socket_t *ReqSocket);
 	/**Method  that synchronizes the clock of Pupil Service with the current timestamp of this client. Pupil Service acts as a follower for this  */
 	void SynchronizePupilServiceTimestamp();
 	 /**Helper Method that logs the SubPort */
@@ -51,6 +75,10 @@ private:
 	 GazeStruct ConvertMsgPackToGazeStruct(zmq::message_t info);
 	
 private:
+	///CALIBRATION PROCESS
+	 static bool eyeProcess0;
+	 static bool eyeProcess1;
+
 	 /**Context for Zmq to rely on*/
 	zmq::context_t* ZmqContext;
 	/**Subsocket on which the Zmq Request Socket Subscribes*/

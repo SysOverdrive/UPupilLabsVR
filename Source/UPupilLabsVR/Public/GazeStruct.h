@@ -58,4 +58,21 @@ struct GazeStruct {
 	MSGPACK_DEFINE_MAP(topic, norm_pos, confidence, id, timestamp, base_data);
 };
 
+//Todo move in struct folder
 
+struct DetectionModeStruct
+{
+	std::string subject;
+	std::string mode;
+	MSGPACK_DEFINE_MAP(subject, mode);
+
+};
+
+struct EyeStruct
+{
+	std::string subject;
+	int id;
+	double delay;
+	MSGPACK_DEFINE_MAP(subject, id, delay);
+
+};
