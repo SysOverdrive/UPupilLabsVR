@@ -4,21 +4,25 @@
 #include "FPupilLabsUtils.h"
 
 FPupilLabsUtils::FPupilLabsUtils()
-{
+{//Todo AndreiQ : De ce se cheama de doua ori ? M-am uitat prin cod si nu pare logic? Sa il fac singleton
 	UE_LOG(LogTemp, Warning, TEXT("FPupilLabsutil>>>>Initialized"));
 	zmq::socket_t ReqSocket = ConnectToZmqPupilPublisher(Port);
 	SubSocket = ConnectToSubport(&ReqSocket, PupilTopic);
 	SynchronizePupilServiceTimestamp();
+	StartHMDPlugin(&ReqSocket); //TODO METODA GENERICA PENTRU ASTEA 3 CU PARAMS REQSOCKET SI GENERIC STRUCT 
+	CalibrationShouldStart(&ReqSocket);
 	SetDetectionMode(&ReqSocket);
 	StartEyeProcesses(&ReqSocket);
 	//Todo Close All Sockets within an ArrayList of Sockets
 	ReqSocket.close();
+
 }
 
 FPupilLabsUtils::~FPupilLabsUtils()
 {
 	ZmqContext = nullptr;
 	SubSocket = nullptr;
+
 }
 
 
@@ -45,11 +49,11 @@ zmq::socket_t* FPupilLabsUtils::ConnectToSubport(zmq::socket_t *ReqSocket,const 
 {
 	/* Send Request for Sub Port */
 	std::string SendSubPort = u8"SUB_PORT";
-	zmq::message_t subport_request(8);
+	zmq::message_t subport_request(SendSubPort.size());
 	memcpy(subport_request.data(), SendSubPort.c_str(), SendSubPort.length());
 	ReqSocket->send(subport_request);
 	/* SUBSCRIBER SOCKET */
-	std::string SubPortAddr = Addr + this->ReceiveSubPort(ReqSocket);
+	std::string SubPortAddr = Addr + ReceiveSubPort(ReqSocket);
 	zmq::socket_t* SubSocket = new zmq::socket_t(*ZmqContext, ZMQ_SUB);
 	SubSocket->connect(SubPortAddr);
 	SubSocket->setsockopt(ZMQ_SUBSCRIBE, Topic.c_str(), Topic.length());
@@ -78,6 +82,18 @@ std::string FPupilLabsUtils::ReceiveSubPort(zmq::socket_t *ReqSocket)
 
 	return SubportReply;
 }
+
+void FPupilLabsUtils::CloseSubSocket()
+{
+	SubSocket->close();
+}
+
+void FPupilLabsUtils::LogSubPortUE(std::string SubportReply)
+{
+	FString PortRequest(SubportReply.c_str());
+	UE_LOG(LogTemp, Warning, TEXT("ZMQ>>>>Reply : %s"), *PortRequest);
+}
+
 /**Todo Must be placed at the start of the Calibration*/
 void FPupilLabsUtils::SynchronizePupilServiceTimestamp()
 {
@@ -85,14 +101,13 @@ void FPupilLabsUtils::SynchronizePupilServiceTimestamp()
 	zmq::socket_t TimeReqSocket = ConnectToZmqPupilPublisher(Port);
 	
 	float CurrentUETimestamp = FPlatformTime::Seconds();
-	FString TheFloatStr = FString::SanitizeFloat(CurrentUETimestamp);
 	std::string SendCurrentUETimeStamp = u8"T " + std::to_string(CurrentUETimestamp);
 	FString SendTimestamp(SendCurrentUETimeStamp.c_str());
 	UE_LOG(LogTemp, Warning, TEXT("Current TimeStamp %s "), *SendTimestamp);
 
-	zmq::message_t subport_request(17);
-	memcpy(subport_request.data(), SendCurrentUETimeStamp.c_str(), SendCurrentUETimeStamp.length());
-	TimeReqSocket.send(subport_request);
+	zmq::message_t TimestampSendRequest(SendCurrentUETimeStamp.length());
+	memcpy(TimestampSendRequest.data(), SendCurrentUETimeStamp.c_str(), SendCurrentUETimeStamp.length());
+	TimeReqSocket.send(TimestampSendRequest);
 	//We always have to receive the data so it is non blocking
 	zmq::message_t Reply;
 	TimeReqSocket.recv(&Reply);
@@ -102,189 +117,150 @@ void FPupilLabsUtils::SynchronizePupilServiceTimestamp()
 
 }
 
-void FPupilLabsUtils::LogSubPortUE(std::string SubportReply)
-{
-	FString PortRequest(SubportReply.c_str());
-	UE_LOG(LogTemp, Warning, TEXT("ZMQ>>>>Subport : %s"), *PortRequest);
-}
-
 GazeStruct FPupilLabsUtils::GetGazeStructure()
 {
-	
 	zmq::message_t topic;
 	SubSocket->recv(&topic);
 	zmq::message_t info;
 	SubSocket->recv(&info);
 	GazeStruct ReceivedGazeStruct = ConvertMsgPackToGazeStruct(std::move(info));
 
-//	double x = ReceivedGazeStruct.base_data.pupil.norm_pos.x;
-//	double y = ReceivedGazeStruct.base_data.pupil.norm_pos.y;
-//	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]XXXXXXX : %f"), TEXT(__FUNCTION__), __LINE__, x);
-//	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]YYYYYYY : %f"), TEXT(__FUNCTION__), __LINE__, y);
-
 	return ReceivedGazeStruct;
 }
 
-void FPupilLabsUtils::CloseSubSocket()
-{
-	SubSocket->close();
-}
 
 void FPupilLabsUtils::InitializeCalibration(zmq::socket_t *ReqSocket)
 {
-	//Todo move in Calibration class
-	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]Calibration initialized"), TEXT(__FUNCTION__), __LINE__);
-	//Calibration Variables
-	//If no sphere initilize it
-	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]Calibration started"), TEXT(__FUNCTION__), __LINE__);
-
-	//Todo send start eye process
-	//Todo send plugin 
-	//2D Mode Move From Here
-	zmq::socket_t* Sub2DSocket = new zmq::socket_t(*ZmqContext, ZMQ_PUB);
-
-
-
-
-	std::string SendSubPort = u8"SUB_PORT";
-	zmq::message_t subport_request(8);
-	memcpy(subport_request.data(), SendSubPort.c_str(), SendSubPort.length());
-	ReqSocket->send(subport_request);
-
-	std::string SubPort2DAddr = Addr + this->ReceiveSubPort(ReqSocket);
-
-	Sub2DSocket->connect(SubPort2DAddr);
-
-	EyeStruct EyeStruct = { "notify.eye_process.should_start.0",1 };
-
-	msgpack::sbuffer sbuf;
-	msgpack::pack(sbuf, EyeStruct);
-
-	std::string SendDetectionString = u8"notify.set_detection_mapping_mode";
-	zmq::message_t topic(34);
-	//memcpy(topic.data(), sbuf, SendDetectionString.length());
-	Sub2DSocket->send(topic, ZMQ_SNDMORE);
-
-	std::string SendDetectionStringMethod = u8"2d";
-	zmq::message_t subject(27);
-	memcpy(subject.data(), SendDetectionString.c_str(), SendDetectionString.length());
-	bool BSendCalibrationMode = Sub2DSocket->send(subject, 0);
+	//TODO
+	/*SubscribeTo("notify.calibration.successful");
+	SubscribeTo("notify.calibration.failed");
+	SubscribeTo("pupil.");*/
 
 }
 
 void FPupilLabsUtils::UpdateCalibration()
 {
+	
+}
 
+void FPupilLabsUtils::StartHMDPlugin(zmq::socket_t *ReqSocket)
+{
+	///DATA MARSHELLING
+	StartPluginStruct StartPluginStruct = { u8"start_plugin" , PupilPluginName };
+	std::string FirstBuffer = "notify." + StartPluginStruct.subject;
+
+	zmq::message_t FirstFrame(FirstBuffer.size());
+	memcpy(FirstFrame.data(), FirstBuffer.c_str(), FirstBuffer.size());
+
+	msgpack::sbuffer SecondBuf;
+	msgpack::pack(SecondBuf, StartPluginStruct);
+	zmq::message_t SecondFrame(SecondBuf.size());
+	memcpy(SecondFrame.data(), SecondBuf.data(), SecondBuf.size());
+	//DATA SENDING
+	zmq::multipart_t multipart;
+
+	multipart.add(std::move(FirstFrame));
+	multipart.add(std::move(SecondFrame));
+	multipart.send(*ReqSocket);
+
+	zmq::message_t Reply;
+	ReqSocket->recv(&Reply);
+
+	std::string  HMDPluginReply = std::string(static_cast<char*>(Reply.data()), Reply.size());
+	LogSubPortUE(HMDPluginReply); //ToDo delete after implementation
+}
+
+void FPupilLabsUtils::CalibrationShouldStart(zmq::socket_t* ReqSocket)
+{
+	///DATA MARSHELLING
+	CalibrationShouldStartStruct ShouldStartStruct = { "calibration.should_start", {1200, 1200}, 35, {0,0,0}, {0,0,0} };
+	std::string FirstBuffer = "notify." + ShouldStartStruct.subject;
+
+	zmq::message_t FirstFrame(FirstBuffer.size());
+	memcpy(FirstFrame.data(), FirstBuffer.c_str(), FirstBuffer.size());
+
+	msgpack::sbuffer SecondBuf;
+	msgpack::pack(SecondBuf, ShouldStartStruct);
+	zmq::message_t SecondFrame(SecondBuf.size());
+	memcpy(SecondFrame.data(), SecondBuf.data(), SecondBuf.size());
+	//DATA SENDING
+	zmq::multipart_t multipart;
+
+	multipart.add(std::move(FirstFrame));
+	multipart.add(std::move(SecondFrame));
+	multipart.send(*ReqSocket);
+
+	zmq::message_t Reply;
+	ReqSocket->recv(&Reply);
+
+	std::string  HMDPluginReply = std::string(static_cast<char*>(Reply.data()), Reply.size());
+	LogSubPortUE(HMDPluginReply); //ToDo delete after implementation
 }
 
 bool FPupilLabsUtils::SetDetectionMode(zmq::socket_t *ReqSocket)
 {
-	//2D Mode Move From Here
-	zmq::socket_t* Sub2DSocket = new zmq::socket_t(*ZmqContext, ZMQ_PUB);
-
-
-	std::string SendSubPort = u8"SUB_PORT";
-	zmq::message_t subport_request(8);
-	memcpy(subport_request.data(), SendSubPort.c_str(), SendSubPort.length());
-	ReqSocket->send(subport_request);
-
-	std::string SubPort2DAddr = Addr + this->ReceiveSubPort(ReqSocket);
-
-	Sub2DSocket->connect(SubPort2DAddr);
-
-	DetectionModeStruct DetectStruct = { u8"notify.set_detection_mapping_mode" , u8"2d" };
-	//msgpack::sbuffer FirstBuffer;
-	//msgpack::pack(FirstBuffer, DetectStruct.subject);
-	std::string FirstBuffer = DetectStruct.subject;
+	DetectionModeStruct DetectStruct = { u8"set_detection_mapping_mode" , u8"2d" };
+	std::string FirstBuffer ="notify." + DetectStruct.subject;
 
 	zmq::message_t FirstFrame(FirstBuffer.size());
-
-	memcpy(FirstFrame.data(), FirstBuffer.data(), FirstBuffer.size());
-	//Sub2DSocket->send(FirstFrame, ZMQ_SNDMORE);
+	memcpy(FirstFrame.data(), FirstBuffer.c_str(), FirstBuffer.size());
 	
-
 	msgpack::sbuffer SecondBuf;
-
-	msgpack::pack(SecondBuf, DetectStruct.mode);
-
+	msgpack::pack(SecondBuf, DetectStruct);
 	zmq::message_t SecondFrame(SecondBuf.size());
 	memcpy(SecondFrame.data(), SecondBuf.data(), SecondBuf.size());
-
+	//DATA SENDING
 	zmq::multipart_t multipart;
 
 	multipart.add(std::move(FirstFrame));
 	multipart.add(std::move(SecondFrame));
 
-	multipart.send(*Sub2DSocket);
+	multipart.send(*ReqSocket);
 
-	//zmq::message_t Reply;
-	//Sub2DSocket->recv(&Reply);
+	zmq::message_t Reply;
+	ReqSocket->recv(&Reply);
 
-	//bool BSendCalibrationMode = Sub2DSocket->send(SecondFrame, 0);
-
-
+	std::string  Notification2DReply = std::string(static_cast<char*>(Reply.data()), Reply.size());
+	LogSubPortUE(Notification2DReply); //ToDo delete after implementation
 	return true;
-
 }
 
 
 bool FPupilLabsUtils::StartEyeProcesses(zmq::socket_t *ReqSocket)
 {
-	PackStartEyeNotification(ReqSocket, 0);
+	StartEyeNotification(ReqSocket, "0");
+	StartEyeNotification(ReqSocket, "1");
+
 	return true;
 }
 
 
-void FPupilLabsUtils::PackStartEyeNotification(zmq::socket_t *ReqSocket, int EyeId)
+void FPupilLabsUtils::StartEyeNotification(zmq::socket_t* ReqSocket, std::string EyeId)
 {
-	EyeStruct EyeStruct = { "notify.eye_process.should_start.0",  EyeId, 0.1};
-	zmq::socket_t* EyeSocket = new zmq::socket_t(*ZmqContext, ZMQ_PUB);
-
-	//CONNECTION
-	std::string SendSubPort = u8"SUB_PORT";
-	zmq::message_t subport_request(8);
-	memcpy(subport_request.data(), SendSubPort.c_str(), SendSubPort.length());
-	ReqSocket->send(subport_request);
-
-	std::string SubPortAddr = Addr + this->ReceiveSubPort(ReqSocket);
-
-	EyeSocket->connect(SubPortAddr);
-
-	//msgpack::sbuffer FirstBuffer;
-	//msgpack::pack(FirstBuffer, EyeStruct.subject);
-	std::string FirstBuffer = EyeStruct.subject;
+	std::string Subject = "eye_process.should_start." + EyeId;
+	
+	EyeStruct EyeStruct = { Subject, atoi(EyeId.c_str()), 0.1};
+	//zmq::socket_t* EyeSocket = new zmq::socket_t(*ZmqContext, ZMQ_PUB);
+	zmq::socket_t EyeSocket = ConnectToZmqPupilPublisher(Port);
+	std::string FirstBuffer ="notify." + Subject;
 
 	zmq::message_t FirstFrame(FirstBuffer.size());
-	memcpy(FirstFrame.data(), FirstBuffer.data(), FirstBuffer.size());
-	//->send(FirstFrame,ZMQ_SNDMORE);
-	///2
+	memcpy(FirstFrame.data(), FirstBuffer.c_str(), FirstBuffer.size());
+
 	msgpack::sbuffer SecondBuf;
-
-	msgpack::pack(SecondBuf, EyeStruct.id);
-
+	msgpack::pack(SecondBuf, EyeStruct);
 	zmq::message_t SecondFrame(SecondBuf.size());
 	memcpy(SecondFrame.data(), SecondBuf.data(), SecondBuf.size());
-	//EyeSocket->send(SecondFrame, ZMQ_SNDMORE);
-	///3
-	msgpack::sbuffer ThirdBuf;
-
-	msgpack::pack(ThirdBuf, EyeStruct.delay);
-
-	zmq::message_t ThirdFrame(ThirdBuf.size());
-	memcpy(ThirdFrame.data(), ThirdBuf.data(), ThirdBuf.size());
-	//EyeSocket->send(SecondFrame, 0);
-
+	//DATA SENDING
 	zmq::multipart_t multipart;
-
 	multipart.add(std::move(FirstFrame));
 	multipart.add(std::move(SecondFrame));
 
-	multipart.send(*EyeSocket);
+	multipart.send(*ReqSocket);
 
-	//zmq::message_t Reply;
-	//EyeSocket->recv(&Reply);
+	zmq::message_t Reply;
+	ReqSocket->recv(&Reply);
 
-	//char* payload = static_cast<char*>(Reply.data());
-	//msgpack::object_handle oh = msgpack::unpack(payload, Reply.size());
-	//msgpack::object deserialized = oh.get();
+	std::string  Notification2DReply = std::string(static_cast<char*>(Reply.data()), Reply.size());
+	LogSubPortUE(Notification2DReply);
 }

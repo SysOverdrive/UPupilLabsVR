@@ -22,8 +22,6 @@ void AMyTestPupilActor::BeginPlay()
 void AMyTestPupilActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	FConstCameraActorIterator MyTestCameraIterator = GetWorld()->GetAutoActivateCameraIterator();
-
 }
 
 void AMyTestPupilActor::OnNewPupilData(GazeStruct *GazeStructure)

@@ -48,11 +48,13 @@ public:
 	/**Position float should be a vector todo*/
 	void InitializeCalibration(zmq::socket_t* ReqSocket);
 	void UpdateCalibration();
-	bool StartEyeProcesses(zmq::socket_t* ReqSocket);
-	void PackStartEyeNotification(zmq::socket_t* ReqSocket, int EyeId);
+	void StartHMDPlugin(zmq::socket_t* ReqSocket);
+	void CalibrationShouldStart(zmq::socket_t* socket);
 
-	void AddCalibrationPointReferencePosition(float position, float timestamp);
 	void SendMultipartMessage(zmq::socket_t *SubSocket, zmq::message_t Reply);
+	bool StartEyeProcesses(zmq::socket_t* ReqSocket);
+	void StartEyeNotification(zmq::socket_t* ReqSocket, std::string EyeId);
+	void AddCalibrationPointReferencePosition(float position, float timestamp);
 	bool StartEyeProcesses();
 	///END CALIBRATION METHODS///
 
@@ -87,6 +89,7 @@ private:
 	std::string Addr = "tcp://127.0.0.1:";//TODO UPROPERTY Options
 	std::string Port = "50020";
 	std::string PupilTopic = u8"gaze"; //TODO Implement Options With UObject
+	std::string PupilPluginName = "HMD_Calibration";
 	/**End Hardcoded strings that define the connection and type of Subscription */
 };
 

@@ -71,8 +71,26 @@ struct DetectionModeStruct
 struct EyeStruct
 {
 	std::string subject;
-	int id;
-	double delay;
-	MSGPACK_DEFINE_MAP(subject, id, delay);
+	int eye_id;
+	float delay;
+	MSGPACK_DEFINE_MAP(subject, eye_id, delay);
+
+};
+
+struct StartPluginStruct
+{
+	std::string subject;
+	std::string name;
+	MSGPACK_DEFINE_MAP(subject, name);
+};
+
+struct CalibrationShouldStartStruct
+{
+	std::string subject;
+	float hmd_video_frame_size[2];
+	int outlier_threshold;
+	float translation_eye0[3]; //Like an FVector
+	float translation_eye1[3];
+	MSGPACK_DEFINE_MAP(subject, hmd_video_frame_size, outlier_threshold, translation_eye0, translation_eye1);
 
 };

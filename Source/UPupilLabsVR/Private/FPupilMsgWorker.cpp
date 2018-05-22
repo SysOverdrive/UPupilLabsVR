@@ -34,7 +34,6 @@ FPupilMsgWorker::~FPupilMsgWorker()
 bool FPupilMsgWorker::Init()
 {	
 	 PupilHelper = FPupilLabsUtils();
-	
 	return true; //TODO BUILD A ERROR BASED LOG. FALSE IF THE INITIALISATION FAILED//O Metoda ce sa returneze un numar de Eroare sau ceva similar
 }
 
@@ -99,7 +98,7 @@ FPupilMsgWorker* FPupilMsgWorker::StartListening()
 	if (!Instance && FPlatformProcess::SupportsMultithreading())
 	{
 		Instance = new FPupilMsgWorker();
-		Instance->bSuccessfulyInit = Instance->Init();
+		//Instance->bSuccessfulyInit = Instance->Init();
 		Instance->bRunning = true;
 	}
 	return Instance;
