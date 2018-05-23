@@ -32,8 +32,11 @@ FPupilMsgWorker::~FPupilMsgWorker()
  * \return true if the Initialization was  successful
  */
 bool FPupilMsgWorker::Init()
-{	
+{
+	if (!Instance && !bRunning) //todo this is a quick fix to the fact the threads instantiates the Utils function twice
+
 	 PupilHelper = FPupilLabsUtils();
+
 	return true; //TODO BUILD A ERROR BASED LOG. FALSE IF THE INITIALISATION FAILED//O Metoda ce sa returneze un numar de Eroare sau ceva similar
 }
 

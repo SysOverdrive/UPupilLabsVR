@@ -94,3 +94,10 @@ struct CalibrationShouldStartStruct
 	MSGPACK_DEFINE_MAP(subject, hmd_video_frame_size, outlier_threshold, translation_eye0, translation_eye1);
 
 };
+
+struct CalibrationShouldStopStruct
+{
+	std::string subject;
+	MSGPACK_DEFINE_MAP(subject);
+
+};
