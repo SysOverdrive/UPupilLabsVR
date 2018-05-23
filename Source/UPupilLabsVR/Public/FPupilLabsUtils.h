@@ -46,23 +46,28 @@ public:
 	 * Implement Multipart message
 	 */
 	/**Position float should be a vector todo*/
-	void InitializeCalibration(zmq::socket_t* ReqSocket);
-	void UpdateCalibration();
 	void StartHMDPlugin(zmq::socket_t* ReqSocket);
 	//CALIBRATION CLASS ?
 	void StartCalibration(zmq::socket_t* socket);
 	void StopCalibration(zmq::socket_t* socket);
+
+	void InitializeCalibration(zmq::socket_t* ReqSocket);
+
+
+	void AddCalibrationReferenceData();
+	void AddCalibrationPointReferencePosition(float CalibrationData[], float timestamp);
+
+	void UpdateCalibrationPoint();
+	void UpdateCalibration();
+
 	//CALIBRATION CLASS ?
-
-
-
 	void StartEyeProcesses(zmq::socket_t* ReqSocket);
 	bool StartEyeNotification(zmq::socket_t* ReqSocket, std::string EyeId);
-	void CloseEyeProcesses(zmq::socket_t* ReqSocket);
 	bool CloseEyeNotification(zmq::socket_t* ReqSocket, std::string EyeId);
 	void SendMultiPartMessage(zmq::socket_t* ReqSocket, std::string FirstBuffer, msgpack::sbuffer SecondBuffer);
-	void AddCalibrationPointReferencePosition(float position, float timestamp);
 	bool StartEyeProcesses();
+	void CloseEyeProcesses(zmq::socket_t* ReqSocket);
+
 	///END CALIBRATION METHODS///
 
 
@@ -70,7 +75,7 @@ private:
 	///CALIBRATION METHODS
 	bool SetDetectionMode(zmq::socket_t* ReqSocket);
 	/**Method Used to send a multipart message with 2 Frames in Pupil Notification Style.First frame is a notify.request std::string and the second one is MsgPack Struct*/
-	void SendMultipartMessage(zmq::socket_t *SubSocket, zmq::message_t Reply);
+//	void SendMultipartMessage(zmq::socket_t *SubSocket, zmq::message_t Reply);
 	/**Method that starts connecting to the Response Socket of the Pupil Service using a Request Socket */
 	zmq::socket_t ConnectToZmqPupilPublisher(std::string ReqPort);
 	/**Method that connects to the Subport of the Publisher given from the Request Socket*/
@@ -85,10 +90,24 @@ private:
 	 GazeStruct ConvertMsgPackToGazeStruct(zmq::message_t info);
 	
 private:
-	///CALIBRATION PROCESS
+	///CALIBRATION PROCESS Todo Maybe a Settings struct
 	 bool bEyeProcess0;
 	 bool bEyeProcess1;
+	 float LastTimestamp ;
+	 int CurrentCalibrationSamples;
+	 int SamplesToIgnoreForEyeMovement;
+	 float Offset;
+	 float Radius;
+	 const float TimeBetweenCalibrationPoints = 0.02f;
+	 const int CalibrationType2DPointsNumber = 8;
+	 const int CurrentCalibrationSamplesPerDepth = 120;
+	 const int CurrentCalibrationTypeVectorDepthRadiusLength = 2;
+	 int CurrentCalibrationPoint;
+	 int CurrentCalibrationDepth;
+	 float CurrentCalibrationPointPosition[3];// = { 1.1, 1.2, 1.3 };
+	 float VectorDepthRadius[2];// = { 2.0f, 0.07f };
 
+	//END CALIBRATION PROCESS
 	 /**Context for Zmq to rely on*/
 	zmq::context_t* ZmqContext;
 	/**Subsocket on which the Zmq Request Socket Subscribes*/
@@ -100,6 +119,7 @@ private:
 	std::string Port = "50020";
 	std::string PupilTopic = u8"gaze"; //TODO Implement Options With UObject
 	std::string PupilPluginName = "HMD_Calibration";
+
 	/**End Hardcoded strings that define the connection and type of Subscription */
 };
 

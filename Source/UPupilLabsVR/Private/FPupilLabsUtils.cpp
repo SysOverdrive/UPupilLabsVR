@@ -8,13 +8,26 @@ FPupilLabsUtils::FPupilLabsUtils()
 	UE_LOG(LogTemp, Warning, TEXT("FPupilLabsutil>>>>Initialized"));
 	zmq::socket_t ReqSocket = ConnectToZmqPupilPublisher(Port);
 	SubSocket = ConnectToSubport(&ReqSocket, PupilTopic);
-	SynchronizePupilServiceTimestamp();
-	StartHMDPlugin(&ReqSocket); //TODO METODA GENERICA PENTRU ASTEA 3 CU PARAMS REQSOCKET SI GENERIC STRUCT 
-	StartCalibration(&ReqSocket);
-	SetDetectionMode(&ReqSocket);
-	StartEyeProcesses(&ReqSocket);
+	//SynchronizePupilServiceTimestamp();
+	//StartHMDPlugin(&ReqSocket); //TODO METODA GENERICA PENTRU ASTEA 3 CU PARAMS REQSOCKET SI GENERIC STRUCT 
+	//StartCalibration(&ReqSocket);
+	//SetDetectionMode(&ReqSocket);
+	//StartEyeProcesses(&ReqSocket);
 	//Todo Close All Sockets within an ArrayList of Sockets
-	ReqSocket.close();
+
+	//CALIBRATION
+	 SamplesToIgnoreForEyeMovement = 10;
+	 CurrentCalibrationSamples = 0;
+	 CurrentCalibrationDepth = 0;
+	 CurrentCalibrationPoint = 0;
+	 VectorDepthRadius[0] = 2.0f;
+	 VectorDepthRadius[1] = 0.07f;
+	 CurrentCalibrationPointPosition[0] = 1.1f;
+	 CurrentCalibrationPointPosition[1] = 2.2f;
+	 CurrentCalibrationPointPosition[2] = 3.3f;
+
+
+   	ReqSocket.close();
 }
 
 FPupilLabsUtils::~FPupilLabsUtils()
@@ -139,11 +152,6 @@ void FPupilLabsUtils::InitializeCalibration(zmq::socket_t *ReqSocket)
 	SubscribeTo("notify.calibration.failed");
 	SubscribeTo("pupil.");*/
 
-}
-
-void FPupilLabsUtils::UpdateCalibration()
-{
-	
 }
 
 void FPupilLabsUtils::StartHMDPlugin(zmq::socket_t *ReqSocket)
@@ -348,18 +356,117 @@ bool  FPupilLabsUtils::CloseEyeNotification(zmq::socket_t* ReqSocket, std::strin
 		return true;
 	}
 }
-//Todo: Fix msgpack::sbuffer SecondBuffer; no * operator problem
-void FPupilLabsUtils::SendMultiPartMessage(zmq::socket_t* ReqSocket, std::string FirstBuffer, msgpack::sbuffer SecondBuffer)
+////Todo: Fix msgpack::sbuffer SecondBuffer; no * operator problem (Poate merge ca sstrream in loc de msgpack sbuffer dar ii prea riscant acuma
+////void FPupilLabsUtils::SendMultiPartMessage(zmq::socket_t* ReqSocket, std::string FirstBuffer, msgpack::sbuffer SecondBuffer)
+////{
+////	zmq::message_t FirstFrame(FirstBuffer.size());
+////	memcpy(FirstFrame.data(), FirstBuffer.c_str(), FirstBuffer.size());
+////
+////	zmq::message_t SecondFrame(SecondBuffer.size());
+////	memcpy(SecondFrame.data(), SecondBuffer.data(), SecondBuffer.size());
+////
+////	zmq::multipart_t multipart;
+////	multipart.add(std::move(FirstFrame));
+////	multipart.add(std::move(SecondFrame));
+////
+////	multipart.send(*ReqSocket);
+////}
+
+//private static List<Dictionary<string, object>> _calibrationData = new List<Dictionary<string, object>>();
+///THIS SEND THE DATA 
+void FPupilLabsUtils::AddCalibrationReferenceData()
 {
-	zmq::message_t FirstFrame(FirstBuffer.size());
-	memcpy(FirstFrame.data(), FirstBuffer.c_str(), FirstBuffer.size());
+	//Send(new Dictionary<string, object>{
+	//	{ "subject","calibration.add_ref_data" },
+	//		{
+	//			"ref_data",
+	//			_calibrationData.ToArray()
+	//		}
+	//	});
 
-	zmq::message_t SecondFrame(SecondBuffer.size());
-	memcpy(SecondFrame.data(), SecondBuffer.data(), SecondBuffer.size());
 
-	zmq::multipart_t multipart;
-	multipart.add(std::move(FirstFrame));
-	multipart.add(std::move(SecondFrame));
+}
+////ToDo Find the appropriat struct collect data with reference position (bellow) and send data with reference data (above)
+///// THIS GETS THE DATA
+//void FPupilLabsUtils::AddCalibrationPointReferencePosition(float CalibrationData[3], float timestamp)
+//{
+//
+//	//get marker data
+//
+//	/*if (CalibrationMode == Calibration.Mode._3D)
+//		for (int i = 0; i < position.Length; i++)
+//			position[i] *= PupilSettings.PupilUnitScalingFactor;
+//
+//	_calibrationData.Add(new Dictionary<string, object>() {
+//		{ CalibrationType.positionKey, position },
+//		{ "timestamp", timestamp },
+//		{ "id", int.Parse(PupilData.rightEyeID) }
+//	});
+//	_calibrationData.Add(new Dictionary<string, object>() {
+//		{ CalibrationType.positionKey, position },
+//		{ "timestamp", timestamp },
+//		{ "id", int.Parse(PupilData.leftEyeID) }
+//	});*/
+//}
+//
 
-	multipart.send(*ReqSocket);
+///THIS USES THE ADD CALIBRATION POINT REFERENCE
+void FPupilLabsUtils::UpdateCalibration()
+{
+	LastTimestamp = 0;
+	float t = FPlatformTime::Seconds();
+	if(t- LastTimestamp>TimeBetweenCalibrationPoints)
+	{
+		LastTimestamp = t;
+
+		UpdateCalibrationPoint();
+
+		if (CurrentCalibrationSamples > SamplesToIgnoreForEyeMovement)
+		{
+		}//	FPupilLabsUtils::AddCalibrationPointReferencePosition(CurrentCalibrationPointPosition, t);
+	}
+
+	CurrentCalibrationSamples++;//Increment the current calibration sample. (Default sample amount per calibration point is 120)
+
+	if (CurrentCalibrationSamples >= CurrentCalibrationSamplesPerDepth)
+	{
+		CurrentCalibrationSamples = 0;
+		CurrentCalibrationDepth++; //For The calibration point 3d
+
+		if (CurrentCalibrationDepth >= CurrentCalibrationTypeVectorDepthRadiusLength)
+		{
+			CurrentCalibrationDepth = 0;
+			CurrentCalibrationPoint++;
+
+			//Send the current relevant calibration data for the current calibration point. _CalibrationPoints returns _calibrationData as an array of a Dictionary<string,object>.
+			FPupilLabsUtils::AddCalibrationReferenceData();
+
+			if (CurrentCalibrationPoint >= CalibrationType2DPointsNumber)
+
+			{
+			//	FPupilLabsUtils::StopCalibration(ReqSocket); TODO FIX THE REQUEST SOCKET PROBLEM
+			}
+		}
+
+	}
+
+}
+/////DRAW AND UPDATE POSITION OF CALIBRATION POINT
+void FPupilLabsUtils::UpdateCalibrationPoint()
+{
+	Offset = 0;
+	//DRAW Marker
+	
+	//float[] currentCalibrationPointPosition;
+
+	if (CurrentCalibrationPoint > 0 && CurrentCalibrationPoint < CalibrationType2DPointsNumber)
+	{
+		Offset++;
+		//currentCalibrationPointPosition[0] += Radius * (float)Math.Cos(2f * Math.PI * (float)(currentCalibrationPoint - 1) / (type.points - 1f) + offset);
+		//currentCalibrationPointPosition[1] += Radius * (float)Math.Sin(2f * Math.PI * (float)(currentCalibrationPoint - 1) / (type.points - 1f) + offset);
+	}
+
+	//DRAW MARKER
+	//Marker.UpdatePosition(currentCalibrationPointPosition);
+	//Marker.SetScale(type.markerScale);
 }

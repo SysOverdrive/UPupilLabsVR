@@ -7,39 +7,39 @@
 #include "msgpack.hpp"
 
 struct norm_pos {
-	double x;
-	double y;
+	float x;
+	float y;
 	MSGPACK_DEFINE_ARRAY(x, y);
 };
 
 struct axes {
-	double x;
-	double y;
+	float x;
+	float y;
 	MSGPACK_DEFINE_ARRAY(x, y);
 };
 
 struct center {
-	double x;
-	double y;
+	float x;
+	float y;
 	MSGPACK_DEFINE_ARRAY(x, y);
 };
 
 struct ellipse {
 	center center;
 	axes axes;
-	double angle;
+	float angle;
 	MSGPACK_DEFINE_MAP(center, axes, angle);
 };
 
 struct pupil {
 	std::string topic;
-	double confidence;
+	float confidence;
 	ellipse ellipse;
-	double diameter;
+	float diameter;
 	norm_pos norm_pos;
-	double timestamp;
+	float timestamp;
 	std::string method;
-	double id;
+	float id;
 	MSGPACK_DEFINE_MAP(topic, confidence, ellipse, diameter, norm_pos, timestamp, method, id);
 };
 
@@ -52,9 +52,9 @@ struct GazeStruct {
 	std::string topic;
 	norm_pos norm_pos;
 	base_data base_data;
-	double confidence;
-	double id;
-	double timestamp;
+	float confidence;
+	float id;
+	float timestamp;
 	MSGPACK_DEFINE_MAP(topic, norm_pos, confidence, id, timestamp, base_data);
 };
 
@@ -100,4 +100,16 @@ struct CalibrationShouldStopStruct
 	std::string subject;
 	MSGPACK_DEFINE_MAP(subject);
 
+};
+/**We use a Vector of structs to represent most values and this is just one element of it*/
+struct AddCalibrationReferenceElementStruct
+{
+	norm_pos norm_pos;
+	float timestamp;
+	float id;
+};
+
+struct AddCalibrationReferenceDataStruct
+{
+	
 };
