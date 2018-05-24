@@ -4,7 +4,8 @@ Plugin for connecting to Pupil Labs VR using the ZeroMQ library
 <b>Installation</b>
 <br/>1.Download this in to the ..\Plugins folder of your Project
 <br/>2.In Project.build.cs file add "UPupilLabsVR" in the PublicDependecyModulesNames
-
+<b>Callibration</b>
+https://www.youtube.com/watch?v=6sWmOcGMDTk
 For the Moment all info is logged in the console.
 For The Moment if you want to change where you connect you need to go in FPupilLabsUtils.h and change this fields
 	std::string Addr = "tcp://127.0.0.1:";//ToDo UPROPERTY Options
