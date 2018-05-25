@@ -104,8 +104,8 @@ private:
 	 const int CurrentCalibrationTypeVectorDepthRadiusLength = 2;
 	 int CurrentCalibrationPoint;
 	 int CurrentCalibrationDepth;
-	 float CurrentCalibrationPointPosition[3];// = { 1.1, 1.2, 1.3 };
-	 float VectorDepthRadius[2];// = { 2.0f, 0.07f };
+	 const float CurrentCalibrationPointPosition[3] = { 1.1, 1.2, 1.3 };
+	 const float VectorDepthRadius[2] = { 2.0, 0.07 };
 
 	//END CALIBRATION PROCESS
 	 /**Context for Zmq to rely on*/

@@ -52,7 +52,8 @@ private:
 	/** Thread to run the worker FRunnable on */
 	FRunnableThread* Thread;
 
-	FPupilLabsUtils PupilHelper;
+	FPupilLabsUtils PupilHelper; //this is already an instance of the object
+	//before the construtor code is called - ie at allocationn
 
 	bool bSuccessfulyInit;
 

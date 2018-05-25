@@ -33,10 +33,13 @@ FPupilMsgWorker::~FPupilMsgWorker()
  */
 bool FPupilMsgWorker::Init()
 {
-	if (!Instance && !bRunning) //todo this is a quick fix to the fact the threads instantiates the Utils function twice
-	{ 
-	 PupilHelper =  FPupilLabsUtils();
-	}
+	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
+	//if (!Instance && !bRunning) //todo this is a quick fix to the fact the threads instantiates the Utils function twice
+	//{ 
+	UE_LOG(LogTemp, Warning, TEXT("PupilActor>>>>pre utils"));
+	UE_LOG(LogTemp, Warning, TEXT("PupilActor>>>>post utils"));
+
+	//}
 	return true; //TODO BUILD A ERROR BASED LOG. FALSE IF THE INITIALISATION FAILED//O Metoda ce sa returneze un numar de Eroare sau ceva similar
 }
 
@@ -48,6 +51,7 @@ uint32 FPupilMsgWorker::Run()
 {
 	FPlatformProcess::Sleep(0.03);
 
+	goto jump1;
 	while (bRunning && bSuccessfulyInit)
 	{
 		FPlatformProcess::Sleep(0.32);
@@ -65,6 +69,8 @@ uint32 FPupilMsgWorker::Run()
 		NewPupilDataEvent.Broadcast(&ReceivedGazeStructure);
 		}
 	}
+jump1:
+
 	return 1;
 }
 
@@ -100,13 +106,21 @@ FPupilMsgWorker* FPupilMsgWorker::StartListening()
 	//		and the platform supports multi threading!
 	if (!Instance && FPlatformProcess::SupportsMultithreading())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
 		Instance = new FPupilMsgWorker();
 		//Instance->bSuccessfulyInit = Instance->Init();
 		Instance->bRunning = true;
 	}
 	return Instance;
 }
-
+/*
+mayer's singleton
+widget* getInstance()
+{
+static widget my_only_one;
+return &my_only_one;
+}
+/
 /**
  * \brief Waits and Stops the Thread in the correct way.Stops the process and then destroys the Thread.
  */

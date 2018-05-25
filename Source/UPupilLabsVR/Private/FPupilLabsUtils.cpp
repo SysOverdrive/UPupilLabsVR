@@ -8,9 +8,9 @@ FPupilLabsUtils::FPupilLabsUtils()
 	UE_LOG(LogTemp, Warning, TEXT("FPupilLabsutil>>>>Initialized"));
 	zmq::socket_t ReqSocket = ConnectToZmqPupilPublisher(Port);
 	SubSocket = ConnectToSubport(&ReqSocket, PupilTopic);
-	//SynchronizePupilServiceTimestamp();
-	//StartHMDPlugin(&ReqSocket); //TODO METODA GENERICA PENTRU ASTEA 3 CU PARAMS REQSOCKET SI GENERIC STRUCT 
-	//StartCalibration(&ReqSocket);
+	SynchronizePupilServiceTimestamp();
+	StartHMDPlugin(&ReqSocket); //TODO METODA GENERICA PENTRU ASTEA 3 CU PARAMS REQSOCKET SI GENERIC STRUCT 
+	StartCalibration(&ReqSocket);
 	//SetDetectionMode(&ReqSocket);
 	//StartEyeProcesses(&ReqSocket);
 	//Todo Close All Sockets within an ArrayList of Sockets
@@ -20,11 +20,11 @@ FPupilLabsUtils::FPupilLabsUtils()
 	 CurrentCalibrationSamples = 0;
 	 CurrentCalibrationDepth = 0;
 	 CurrentCalibrationPoint = 0;
-	 VectorDepthRadius[0] = 2.0f;
+	 /*VectorDepthRadius[0] = 2.0f;
 	 VectorDepthRadius[1] = 0.07f;
 	 CurrentCalibrationPointPosition[0] = 1.1f;
 	 CurrentCalibrationPointPosition[1] = 2.2f;
-	 CurrentCalibrationPointPosition[2] = 3.3f;
+	 CurrentCalibrationPointPosition[2] = 3.3f;*/
 
 
    	ReqSocket.close();
