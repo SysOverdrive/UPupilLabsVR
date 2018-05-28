@@ -8,23 +8,17 @@ FPupilLabsUtils::FPupilLabsUtils()
 	UE_LOG(LogTemp, Warning, TEXT("FPupilLabsutil>>>>Initialized"));
 	zmq::socket_t ReqSocket = ConnectToZmqPupilPublisher(Port);
 	SubSocket = ConnectToSubport(&ReqSocket, PupilTopic);
+
 	SynchronizePupilServiceTimestamp();
-	StartHMDPlugin(&ReqSocket); //TODO METODA GENERICA PENTRU ASTEA 3 CU PARAMS REQSOCKET SI GENERIC STRUCT 
 	StartCalibration(&ReqSocket);
 	//SetDetectionMode(&ReqSocket);
 	//StartEyeProcesses(&ReqSocket);
 	//Todo Close All Sockets within an ArrayList of Sockets
 
 	//CALIBRATION
-	 SamplesToIgnoreForEyeMovement = 10;
-	 CurrentCalibrationSamples = 0;
-	 CurrentCalibrationDepth = 0;
-	 CurrentCalibrationPoint = 0;
-	 /*VectorDepthRadius[0] = 2.0f;
-	 VectorDepthRadius[1] = 0.07f;
-	 CurrentCalibrationPointPosition[0] = 1.1f;
-	 CurrentCalibrationPointPosition[1] = 2.2f;
-	 CurrentCalibrationPointPosition[2] = 3.3f;*/
+	//Implementeaza ceva logica cand sa pornest Update Calibration
+
+
 
 
    	ReqSocket.close();
@@ -147,11 +141,15 @@ GazeStruct FPupilLabsUtils::GetGazeStructure()
 
 void FPupilLabsUtils::InitializeCalibration(zmq::socket_t *ReqSocket)
 {
-	//TODO
-	/*SubscribeTo("notify.calibration.successful");
-	SubscribeTo("notify.calibration.failed");
-	SubscribeTo("pupil.");*/
+	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] : %s"), TEXT(__FUNCTION__), __LINE__, TEXT("Initializing Calibration"));
+	SamplesToIgnoreForEyeMovement = 10;
+	CurrentCalibrationPoint = 0;
+	CurrentCalibrationSamples = 0;
+	CurrentCalibrationDepth = 0;
+	PreviousCalibrationDepth = -1;
+	PreviousCalibrationPoint = -1;
 
+	//CREATE FIRST MARKER
 }
 
 void FPupilLabsUtils::StartHMDPlugin(zmq::socket_t *ReqSocket)
@@ -181,12 +179,9 @@ void FPupilLabsUtils::StartHMDPlugin(zmq::socket_t *ReqSocket)
 	LogReply(HMDPluginReply); //ToDo delete after implementation
 }
 
-void FPupilLabsUtils::StartCalibration(zmq::socket_t* ReqSocket)
+void FPupilLabsUtils::SendCalibrationShouldStart(zmq::socket_t *ReqSocket)
 {
-	//INITIALIZE VISUAL DATA
-
-	///DATA MARSHELLING
-	CalibrationShouldStartStruct ShouldStartStruct = { "calibration.should_start", {1200, 1200}, 35, {0,0,0}, {0,0,0} };
+	CalibrationShouldStartStruct ShouldStartStruct = { "calibration.should_start",{ 1200, 1200 }, 35,{ 0,0,0 },{ 0,0,0 } };
 	std::string FirstBuffer = "notify." + ShouldStartStruct.subject;
 
 	zmq::message_t FirstFrame(FirstBuffer.size());
@@ -205,13 +200,21 @@ void FPupilLabsUtils::StartCalibration(zmq::socket_t* ReqSocket)
 
 	zmq::message_t Reply;
 	ReqSocket->recv(&Reply);
+}
+
+void FPupilLabsUtils::StartCalibration(zmq::socket_t* ReqSocket)
+{
+	//INITIALIZE VISUAL DATA
+	InitializeCalibration(ReqSocket);
+	StartHMDPlugin(ReqSocket);
+	SendCalibrationShouldStart(ReqSocket);
 
 	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] : %s"), TEXT(__FUNCTION__), __LINE__, TEXT("Calibration Started"));
+	//Calibration data Clear
+	//GUI
 }
 void FPupilLabsUtils::StopCalibration(zmq::socket_t* ReqSocket)
 {
-	//INITIALIZE VISUAL DATA
-
 	///DATA MARSHELLING
 	CalibrationShouldStartStruct ShouldStartStruct = { "calibration.should_stop",{ 1200, 1200 }, 35,{ 0,0,0 },{ 0,0,0 } };
 	std::string FirstBuffer = "notify." + ShouldStartStruct.subject;
@@ -451,19 +454,20 @@ void FPupilLabsUtils::UpdateCalibration()
 	}
 
 }
+//VISUAL METHOD
 /////DRAW AND UPDATE POSITION OF CALIBRATION POINT
 void FPupilLabsUtils::UpdateCalibrationPoint()
 {
 	Offset = 0;
 	//DRAW Marker
 	
-	//float[] currentCalibrationPointPosition;
+	CurrentCalibrationPointPosition = { 1.1, 1.2, 1.3 };
 
 	if (CurrentCalibrationPoint > 0 && CurrentCalibrationPoint < CalibrationType2DPointsNumber)
 	{
-		Offset++;
-		//currentCalibrationPointPosition[0] += Radius * (float)Math.Cos(2f * Math.PI * (float)(currentCalibrationPoint - 1) / (type.points - 1f) + offset);
-		//currentCalibrationPointPosition[1] += Radius * (float)Math.Sin(2f * Math.PI * (float)(currentCalibrationPoint - 1) / (type.points - 1f) + offset);
+		//Am si Pi
+		CurrentCalibrationPointPosition[0] += Radius * (float)FMath::Cos( 2 * GlobalVectorConstants::Pi * (float)(CurrentCalibrationPoint - 1) / (CalibrationType2DPointsNumber - 1) + Offset);
+		CurrentCalibrationPointPosition[1] += Radius * (float)FMath::Sin( 2 * GlobalVectorConstants::Pi * (float)(currentCalibrationPoint - 1) / (type.points - 1f) + Offset);
 	}
 
 	//DRAW MARKER

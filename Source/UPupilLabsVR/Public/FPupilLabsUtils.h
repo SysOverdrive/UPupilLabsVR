@@ -47,6 +47,7 @@ public:
 	 */
 	/**Position float should be a vector todo*/
 	void StartHMDPlugin(zmq::socket_t* ReqSocket);
+	void SendCalibrationShouldStart(zmq::socket_t * ReqSocket);
 	//CALIBRATION CLASS ?
 	void StartCalibration(zmq::socket_t* socket);
 	void StopCalibration(zmq::socket_t* socket);
@@ -104,9 +105,11 @@ private:
 	 const int CurrentCalibrationTypeVectorDepthRadiusLength = 2;
 	 int CurrentCalibrationPoint;
 	 int CurrentCalibrationDepth;
-	 const float CurrentCalibrationPointPosition[3] = { 1.1, 1.2, 1.3 };
+	 int PreviousCalibrationDepth;
+	 int PreviousCalibrationPoint;
+	 float CurrentCalibrationPointPosition[3]};
 	 const float VectorDepthRadius[2] = { 2.0, 0.07 };
-
+	 const double PI = 3.1415926535897932385;
 	//END CALIBRATION PROCESS
 	 /**Context for Zmq to rely on*/
 	zmq::context_t* ZmqContext;
