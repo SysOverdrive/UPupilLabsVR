@@ -107,9 +107,8 @@ private:
 	 int CurrentCalibrationDepth;
 	 int PreviousCalibrationDepth;
 	 int PreviousCalibrationPoint;
-	 float CurrentCalibrationPointPosition[3]};
+	 float CurrentCalibrationPointPosition[3];
 	 const float VectorDepthRadius[2] = { 2.0, 0.07 };
-	 const double PI = 3.1415926535897932385;
 	//END CALIBRATION PROCESS
 	 /**Context for Zmq to rely on*/
 	zmq::context_t* ZmqContext;

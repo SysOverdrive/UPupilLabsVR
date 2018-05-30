@@ -459,15 +459,10 @@ void FPupilLabsUtils::UpdateCalibration()
 void FPupilLabsUtils::UpdateCalibrationPoint()
 {
 	Offset = 0;
-	//DRAW Marker
-	
-	CurrentCalibrationPointPosition = { 1.1, 1.2, 1.3 };
 
 	if (CurrentCalibrationPoint > 0 && CurrentCalibrationPoint < CalibrationType2DPointsNumber)
 	{
-		//Am si Pi
-		CurrentCalibrationPointPosition[0] += Radius * (float)FMath::Cos( 2 * GlobalVectorConstants::Pi * (float)(CurrentCalibrationPoint - 1) / (CalibrationType2DPointsNumber - 1) + Offset);
-		CurrentCalibrationPointPosition[1] += Radius * (float)FMath::Sin( 2 * GlobalVectorConstants::Pi * (float)(currentCalibrationPoint - 1) / (type.points - 1f) + Offset);
+
 	}
 
 	//DRAW MARKER
