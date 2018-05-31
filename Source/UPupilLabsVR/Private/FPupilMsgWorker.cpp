@@ -45,11 +45,10 @@ uint32 FPupilMsgWorker::Run()
 {
 	FPlatformProcess::Sleep(0.03);
 
-	goto jump1;
 	while (bRunning && bSuccessfulyInit)
 	{
 		FPlatformProcess::Sleep(0.32);
-		
+		if(PupilHelper.CanGaze()){
 		ReceivedGazeStructure = PupilHelper.GetGazeStructure();
 		double Confidence = ReceivedGazeStructure.base_data.pupil.confidence;
 		//If Confidence bigger than 60 % send delegate
@@ -61,10 +60,9 @@ uint32 FPupilMsgWorker::Run()
 		UE_LOG(LogTemp, Warning, TEXT("[%s][%d]CONF XXX : %f"), TEXT(__FUNCTION__), __LINE__, x);
 		UE_LOG(LogTemp, Warning, TEXT("[%s][%d]CONF YYY : %f"), TEXT(__FUNCTION__), __LINE__, y);
 		NewPupilDataEvent.Broadcast(&ReceivedGazeStructure);
+			}
 		}
 	}
-jump1:
-
 	return 1;
 }
 

@@ -56,6 +56,7 @@ public:
 
 	void InitializeCalibration(zmq::socket_t* ReqSocket);
 
+	bool CanGaze();
 
 	void AddCalibrationReferenceData();
 	void AddCalibrationPointReferencePosition(float CalibrationData[], float timestamp);

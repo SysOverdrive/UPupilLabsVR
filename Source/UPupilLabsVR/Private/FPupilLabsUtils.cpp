@@ -17,7 +17,7 @@ FPupilLabsUtils::FPupilLabsUtils()
 
 	//CALIBRATION
 	//Implementeaza ceva logica cand sa pornest Update Calibration
-
+	
 
 
 
@@ -152,6 +152,11 @@ void FPupilLabsUtils::InitializeCalibration(zmq::socket_t *ReqSocket)
 	//CREATE FIRST MARKER
 }
 
+bool FPupilLabsUtils::CanGaze()
+{
+	return true;//todo
+}
+
 void FPupilLabsUtils::StartHMDPlugin(zmq::socket_t *ReqSocket)
 {
 	///DATA MARSHELLING
@@ -208,31 +213,22 @@ void FPupilLabsUtils::StartCalibration(zmq::socket_t* ReqSocket)
 	InitializeCalibration(ReqSocket);
 	StartHMDPlugin(ReqSocket);
 	SendCalibrationShouldStart(ReqSocket);
-
+	StartEyeProcesses(ReqSocket);
+	//CloseEyeProcesses(ReqSocket);
 	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] : %s"), TEXT(__FUNCTION__), __LINE__, TEXT("Calibration Started"));
-	//Calibration data Clear
-	//GUI
-	//SPAWN PAWN
-	// AMyGameGameMode* gameMode = (AMyGameGameMode*)GetWorld()->GetAuthGameMode();
-	//UObject * WorldContextObject;
-	//UWorld * World = GEngine->GetWorldFromContextObject(WorldContextObject);
-	//FVector SpawnLocation(0, 0, 100);
-	//FRotator SpawnRotation(0.0f, 0.0f, 0.0f);
-	//FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
-	//AAPupilLabsVisualMarkersPawn* ResultPawn = World->SpawnActor<AAPupilLabsVisualMarkersPawn>(AAPupilLabsVisualMarkersPawn::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
-	//GetWorld()->SpawnActor<AmySphere>(this->GetClass(), myLoc, myRot, SpawnInfo);
+
 }
 void FPupilLabsUtils::StopCalibration(zmq::socket_t* ReqSocket)
 {
 	///DATA MARSHELLING
-	CalibrationShouldStartStruct ShouldStartStruct = { "calibration.should_stop",{ 1200, 1200 }, 35,{ 0,0,0 },{ 0,0,0 } };
-	std::string FirstBuffer = "notify." + ShouldStartStruct.subject;
+	CalibrationShouldStopStruct CalibrationShouldStopStruct = { "calibration.should_stop"};
+	std::string FirstBuffer = "notify." + CalibrationShouldStopStruct.subject;
 
 	zmq::message_t FirstFrame(FirstBuffer.size());
 	memcpy(FirstFrame.data(), FirstBuffer.c_str(), FirstBuffer.size());
 
 	msgpack::sbuffer SecondBuf;
-	msgpack::pack(SecondBuf, ShouldStartStruct);
+	msgpack::pack(SecondBuf, CalibrationShouldStopStruct);
 	zmq::message_t SecondFrame(SecondBuf.size());
 	memcpy(SecondFrame.data(), SecondBuf.data(), SecondBuf.size());
 	//DATA SENDING
@@ -293,7 +289,7 @@ bool FPupilLabsUtils::StartEyeNotification(zmq::socket_t* ReqSocket, std::string
 {
 	std::string Subject = "eye_process.should_start." + EyeId;
 	
-	EyeStruct EyeStruct = { Subject, atoi(EyeId.c_str()), 0.1};
+	EyeStruct EyeStruct = { Subject, atoi(EyeId.c_str()), 0.2};
 	//zmq::socket_t* EyeSocket = new zmq::socket_t(*ZmqContext, ZMQ_PUB);
 	zmq::socket_t EyeSocket = ConnectToZmqPupilPublisher(Port);
 	std::string FirstBuffer = "notify." + Subject;
@@ -331,9 +327,9 @@ bool FPupilLabsUtils::StartEyeNotification(zmq::socket_t* ReqSocket, std::string
 
 bool  FPupilLabsUtils::CloseEyeNotification(zmq::socket_t* ReqSocket, std::string EyeId)
 {
-	std::string Subject = "eye_process.should_start." + EyeId;
+	std::string Subject = "eye_process.should_stop." + EyeId;
 
-	EyeStruct EyeStruct = { Subject, atoi(EyeId.c_str()), 0.1 };
+	EyeStruct EyeStruct = { Subject, atoi(EyeId.c_str()), 0.2 };
 	//zmq::socket_t* EyeSocket = new zmq::socket_t(*ZmqContext, ZMQ_PUB);
 	zmq::socket_t EyeSocket = ConnectToZmqPupilPublisher(Port);
 	std::string FirstBuffer = "notify." + Subject;
