@@ -6,7 +6,7 @@
 #include "Core.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Engine.h"
 #include "FPupilMsgWorker.h"
 #include "MyTestPupilActor.generated.h"
 

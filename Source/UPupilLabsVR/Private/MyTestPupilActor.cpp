@@ -13,10 +13,15 @@ AMyTestPupilActor::AMyTestPupilActor()
 void AMyTestPupilActor::BeginPlay()
 {	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("PupilActor>>>>BeginPlay"));
+	//SPAWN PAWN
+	FVector SpawnLocation(300, 0, 100);
+	FRotator SpawnRotation(0.0f, 0.0f, 0.0f);
+	FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
+	AAPupilLabsVisualMarkersPawn* ResultPawn = GetWorld()->SpawnActor<AAPupilLabsVisualMarkersPawn>(AAPupilLabsVisualMarkersPawn::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
+	//SPAWN PAWN
 	PupilComm = FPupilMsgWorker::StartListening();
 	PupilComm->OnNewData().AddUObject(this, &AMyTestPupilActor::OnNewPupilData);
 	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
-
 }
 // Called every frame
 void AMyTestPupilActor::Tick(float DeltaTime)

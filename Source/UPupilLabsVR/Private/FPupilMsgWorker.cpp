@@ -34,12 +34,6 @@ FPupilMsgWorker::~FPupilMsgWorker()
 bool FPupilMsgWorker::Init()
 {
 	UE_LOG(LogTemp, Warning, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
-	//if (!Instance && !bRunning) //todo this is a quick fix to the fact the threads instantiates the Utils function twice
-	//{ 
-	UE_LOG(LogTemp, Warning, TEXT("PupilActor>>>>pre utils"));
-	UE_LOG(LogTemp, Warning, TEXT("PupilActor>>>>post utils"));
-
-	//}
 	return true; //TODO BUILD A ERROR BASED LOG. FALSE IF THE INITIALISATION FAILED//O Metoda ce sa returneze un numar de Eroare sau ceva similar
 }
 

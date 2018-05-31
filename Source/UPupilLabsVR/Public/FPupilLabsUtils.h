@@ -7,6 +7,7 @@
 #include "LogMacros.h"
 #include "zmq.hpp"
 #include "zmq_addon.hpp"
+#include "Engine.h"
 /**
 * \MSGPACK_USE_CPP03 has been applied to use the CPP03 _t implementations instead of _type.
 *  Any usage of CPP011 calls from msgpack will not work.
@@ -15,6 +16,7 @@
 #define   MSGPACK_USE_CPP03
 #include "msgpack.hpp"
 #include "GazeStruct.h"
+#include "APupilLabsVisualMarkersPawn.h"
 
 // 
 /**
@@ -109,6 +111,9 @@ private:
 	 int PreviousCalibrationPoint;
 	 float CurrentCalibrationPointPosition[3];
 	 const float VectorDepthRadius[2] = { 2.0, 0.07 };
+	 float CalibrationRadius = 0.12;
+	 float CurrentCalibrationPointPositionX, CurrentCalibrationPointPositionY;
+	 AAPupilLabsVisualMarkersPawn* VisualMarkersPawn;
 	//END CALIBRATION PROCESS
 	 /**Context for Zmq to rely on*/
 	zmq::context_t* ZmqContext;

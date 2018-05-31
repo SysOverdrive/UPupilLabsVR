@@ -61,7 +61,7 @@ void AAPupilLabsVisualMarkersPawn::SetupPlayerInputComponent(UInputComponent* Pl
 void AAPupilLabsVisualMarkersPawn::UpdatePosition(int CurrentCalibrationPoint)
 {
 	UWorld* CurrentWorld = GetWorld();
-	RedrawSphere(CurrentWorld, i);
+	RedrawSphere(CurrentWorld, CurrentCalibrationPoint);
 }
 
 void AAPupilLabsVisualMarkersPawn::StartCalibration()
@@ -78,13 +78,13 @@ void AAPupilLabsVisualMarkersPawn::RedrawSphere(UWorld* CurrentWorld, int Curren
 {
 	FVector SphereNewPosition;
 	int CalibrationType2DPointsNumber = 8;
-	int Radius = 250;
+	int Radius = 210;
 	float CurrentCalibrationPointPositionX = 0.5, CurrentCalibrationPointPositionY = 0.5;
 	if (GEngine->GameViewport && GEngine->GameViewport->Viewport)
 	{
 		CurrentCalibrationPointPositionX += Radius * (float)FMath::Cos(2 * PI * (float)(CurrentCalibrationPoint - 1) / (float)(CalibrationType2DPointsNumber - 1));
 		CurrentCalibrationPointPositionY += Radius * (float)FMath::Sin(2 * PI * (float)(CurrentCalibrationPoint - 1) / (float)(CalibrationType2DPointsNumber - 1)) - 10;
-		const float Distance = 130.0f;
+		const float Distance = 100.0f;
 		SphereNewPosition = FVector(Distance, CurrentCalibrationPointPositionX, CurrentCalibrationPointPositionY);
 		SphereComponent->SetRelativeLocation(SphereNewPosition);
 

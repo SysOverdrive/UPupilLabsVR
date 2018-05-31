@@ -212,6 +212,15 @@ void FPupilLabsUtils::StartCalibration(zmq::socket_t* ReqSocket)
 	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] : %s"), TEXT(__FUNCTION__), __LINE__, TEXT("Calibration Started"));
 	//Calibration data Clear
 	//GUI
+	//SPAWN PAWN
+	// AMyGameGameMode* gameMode = (AMyGameGameMode*)GetWorld()->GetAuthGameMode();
+	//UObject * WorldContextObject;
+	//UWorld * World = GEngine->GetWorldFromContextObject(WorldContextObject);
+	//FVector SpawnLocation(0, 0, 100);
+	//FRotator SpawnRotation(0.0f, 0.0f, 0.0f);
+	//FActorSpawnParameters SpawnParameters = FActorSpawnParameters();
+	//AAPupilLabsVisualMarkersPawn* ResultPawn = World->SpawnActor<AAPupilLabsVisualMarkersPawn>(AAPupilLabsVisualMarkersPawn::StaticClass(), SpawnLocation, SpawnRotation, SpawnParameters);
+	//GetWorld()->SpawnActor<AmySphere>(this->GetClass(), myLoc, myRot, SpawnInfo);
 }
 void FPupilLabsUtils::StopCalibration(zmq::socket_t* ReqSocket)
 {
@@ -359,21 +368,6 @@ bool  FPupilLabsUtils::CloseEyeNotification(zmq::socket_t* ReqSocket, std::strin
 		return true;
 	}
 }
-////Todo: Fix msgpack::sbuffer SecondBuffer; no * operator problem (Poate merge ca sstrream in loc de msgpack sbuffer dar ii prea riscant acuma
-////void FPupilLabsUtils::SendMultiPartMessage(zmq::socket_t* ReqSocket, std::string FirstBuffer, msgpack::sbuffer SecondBuffer)
-////{
-////	zmq::message_t FirstFrame(FirstBuffer.size());
-////	memcpy(FirstFrame.data(), FirstBuffer.c_str(), FirstBuffer.size());
-////
-////	zmq::message_t SecondFrame(SecondBuffer.size());
-////	memcpy(SecondFrame.data(), SecondBuffer.data(), SecondBuffer.size());
-////
-////	zmq::multipart_t multipart;
-////	multipart.add(std::move(FirstFrame));
-////	multipart.add(std::move(SecondFrame));
-////
-////	multipart.send(*ReqSocket);
-////}
 
 //private static List<Dictionary<string, object>> _calibrationData = new List<Dictionary<string, object>>();
 ///THIS SEND THE DATA 
@@ -462,10 +456,30 @@ void FPupilLabsUtils::UpdateCalibrationPoint()
 
 	if (CurrentCalibrationPoint > 0 && CurrentCalibrationPoint < CalibrationType2DPointsNumber)
 	{
-
+		//GET VISUAL MARKERPAWN
+		VisualMarkersPawn->UpdatePosition(CurrentCalibrationPoint);
+		CurrentCalibrationPointPositionX += CalibrationRadius * (float)FMath::Cos(2 * PI * (float)(CurrentCalibrationPoint - 1) / (float)(CalibrationType2DPointsNumber - 1));
+		CurrentCalibrationPointPositionY += CalibrationRadius * (float)FMath::Sin(2 * PI * (float)(CurrentCalibrationPoint - 1) / (float)(CalibrationType2DPointsNumber - 1)) - 10;
+		//Pack as Float Array
+		
 	}
 
 	//DRAW MARKER
 	//Marker.UpdatePosition(currentCalibrationPointPosition);
 	//Marker.SetScale(type.markerScale);
 }
+////Todo: Fix msgpack::sbuffer SecondBuffer; no * operator problem (Poate merge ca sstrream in loc de msgpack sbuffer dar ii prea riscant acuma
+////void FPupilLabsUtils::SendMultiPartMessage(zmq::socket_t* ReqSocket, std::string FirstBuffer, msgpack::sbuffer SecondBuffer)
+////{
+////	zmq::message_t FirstFrame(FirstBuffer.size());
+////	memcpy(FirstFrame.data(), FirstBuffer.c_str(), FirstBuffer.size());
+////
+////	zmq::message_t SecondFrame(SecondBuffer.size());
+////	memcpy(SecondFrame.data(), SecondBuffer.data(), SecondBuffer.size());
+////
+////	zmq::multipart_t multipart;
+////	multipart.add(std::move(FirstFrame));
+////	multipart.add(std::move(SecondFrame));
+////
+////	multipart.send(*ReqSocket);
+////}
