@@ -62,10 +62,10 @@ public:
 
 
 	void AddCalibrationReferenceData();
-	void AddCalibrationPointReferencePosition(float CalibrationData[], float timestamp);
+	void AddCalibrationPointReferencePosition(float timestamp);
 
 	void UpdateCalibrationPoint();
-	void UpdateCalibration();
+	void UpdateCalibration(zmq::socket_t* ReqSocket);
 	//CALIBRATION CLASS ?
 	void StartEyeProcesses(zmq::socket_t* ReqSocket);
 	bool StartEyeNotification(zmq::socket_t* ReqSocket, std::string EyeId);
@@ -96,7 +96,12 @@ private:
 	 GazeStruct ConvertMsgPackToGazeStruct(zmq::message_t info);
 	
 private:
+	int CalibrationElementIterator;
+	AddCalibrationReferenceDataStruct CalibrationStruct;
+
 	AAPupilLabsVisualMarkersPawn * VisualMarkersPawn;
+	bool bCalibrationStarted;
+	bool bCalibrationEnded;
 	///CALIBRATION PROCESS Todo Maybe a Settings struct
 	 bool bEyeProcess0;
 	 bool bEyeProcess1;

@@ -11,6 +11,9 @@ FPupilLabsUtils::FPupilLabsUtils()
 
 	SynchronizePupilServiceTimestamp();
 	StartCalibration(&ReqSocket);
+	FPlatformProcess::Sleep(5);
+	//StopCalibration(&ReqSocket);
+
 	//SetDetectionMode(&ReqSocket);
 	//StartEyeProcesses(&ReqSocket);
 	//Todo Close All Sockets within an ArrayList of Sockets
@@ -148,13 +151,19 @@ void FPupilLabsUtils::InitializeCalibration(zmq::socket_t *ReqSocket)
 	CurrentCalibrationDepth = 0;
 	PreviousCalibrationDepth = -1;
 	PreviousCalibrationPoint = -1;
-
+	CalibrationElementIterator = 0;
+	bCalibrationStarted = false;
+	bCalibrationEnded = false;
 	//CREATE FIRST MARKER
 }
 
 bool FPupilLabsUtils::CanGaze()
 {
-	return true;//todo
+		if (bCalibrationStarted && bCalibrationEnded)
+		{
+			return true;
+		}
+		else return false;
 }
 
 void FPupilLabsUtils::SetCalibrationSceneVisualReference(AAPupilLabsVisualMarkersPawn* CalibrationScenePawn)
@@ -221,6 +230,7 @@ void FPupilLabsUtils::StartCalibration(zmq::socket_t* ReqSocket)
 	StartEyeProcesses(ReqSocket);
 	//CloseEyeProcesses(ReqSocket);
 	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] : %s"), TEXT(__FUNCTION__), __LINE__, TEXT("Calibration Started"));
+	bCalibrationStarted = true;
 
 }
 void FPupilLabsUtils::StopCalibration(zmq::socket_t* ReqSocket)
@@ -247,6 +257,8 @@ void FPupilLabsUtils::StopCalibration(zmq::socket_t* ReqSocket)
 	ReqSocket->recv(&Reply);
 	
 	UE_LOG(LogTemp, Log, TEXT("[%s][%d]"), TEXT(__FUNCTION__), __LINE__);
+	bCalibrationEnded = true;
+
 }
 
 bool FPupilLabsUtils::SetDetectionMode(zmq::socket_t *ReqSocket)
@@ -294,7 +306,16 @@ bool FPupilLabsUtils::StartEyeNotification(zmq::socket_t* ReqSocket, std::string
 {
 	std::string Subject = "eye_process.should_start." + EyeId;
 	
-	EyeStruct EyeStruct = { Subject, atoi(EyeId.c_str()), 0.2};
+	float delay = 0; //Todo Refactorizat ciobanismul asta
+	if (EyeId == "0") {
+		delay = 0.1;
+	}
+	else
+	{
+		delay = 0.2;
+	}
+	
+	EyeStruct EyeStruct = { Subject, atoi(EyeId.c_str()), delay};
 	//zmq::socket_t* EyeSocket = new zmq::socket_t(*ZmqContext, ZMQ_PUB);
 	zmq::socket_t EyeSocket = ConnectToZmqPupilPublisher(Port);
 	std::string FirstBuffer = "notify." + Subject;
@@ -409,7 +430,7 @@ void FPupilLabsUtils::AddCalibrationReferenceData()
 //
 
 ///THIS USES THE ADD CALIBRATION POINT REFERENCE
-void FPupilLabsUtils::UpdateCalibration()
+void FPupilLabsUtils::UpdateCalibration(zmq::socket_t* ReqSocket)
 {
 	LastTimestamp = 0;
 	float t = FPlatformTime::Seconds();
@@ -421,7 +442,8 @@ void FPupilLabsUtils::UpdateCalibration()
 
 		if (CurrentCalibrationSamples > SamplesToIgnoreForEyeMovement)
 		{
-		}//	FPupilLabsUtils::AddCalibrationPointReferencePosition(CurrentCalibrationPointPosition, t);
+			FPupilLabsUtils::AddCalibrationPointReferencePosition(t);
+		}
 	}
 
 	CurrentCalibrationSamples++;//Increment the current calibration sample. (Default sample amount per calibration point is 120)
@@ -442,7 +464,7 @@ void FPupilLabsUtils::UpdateCalibration()
 			if (CurrentCalibrationPoint >= CalibrationType2DPointsNumber)
 
 			{
-			//	FPupilLabsUtils::StopCalibration(ReqSocket); TODO FIX THE REQUEST SOCKET PROBLEM
+			FPupilLabsUtils::StopCalibration(ReqSocket);
 			}
 		}
 
@@ -469,6 +491,34 @@ void FPupilLabsUtils::UpdateCalibrationPoint()
 	//Marker.UpdatePosition(currentCalibrationPointPosition);
 	//Marker.SetScale(type.markerScale);
 }
+
+void FPupilLabsUtils::AddCalibrationPointReferencePosition(float timestamp)
+{
+	int Id0 = 0;
+	AddCalibrationReferenceElementStruct LeftEyeElement;
+	LeftEyeElement.norm_pos.x = CurrentCalibrationPointPositionX;
+	LeftEyeElement.norm_pos.y = CurrentCalibrationPointPositionY;
+	LeftEyeElement.timestamp = timestamp;//Todo here is tricky
+	LeftEyeElement.id = Id0;
+
+
+	CalibrationElementIterator++;
+
+	CalibrationStruct.ref_data[CalibrationElementIterator] = LeftEyeElement;
+
+	int Id1 = 1;
+
+	AddCalibrationReferenceElementStruct RighEyeElement;
+	RighEyeElement.norm_pos.x = CurrentCalibrationPointPositionX;
+	RighEyeElement.norm_pos.y = CurrentCalibrationPointPositionY;
+	RighEyeElement.timestamp = timestamp;//Todo here is tricky
+	RighEyeElement.id = Id1;
+
+	CalibrationElementIterator++;
+
+	CalibrationStruct.ref_data[CalibrationElementIterator] = RighEyeElement;
+}
+
 ////Todo: Fix msgpack::sbuffer SecondBuffer; no * operator problem (Poate merge ca sstrream in loc de msgpack sbuffer dar ii prea riscant acuma
 ////void FPupilLabsUtils::SendMultiPartMessage(zmq::socket_t* ReqSocket, std::string FirstBuffer, msgpack::sbuffer SecondBuffer)
 ////{

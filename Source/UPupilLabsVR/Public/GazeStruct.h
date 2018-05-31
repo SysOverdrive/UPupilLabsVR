@@ -101,15 +101,19 @@ struct CalibrationShouldStopStruct
 	MSGPACK_DEFINE_MAP(subject);
 
 };
+
 /**We use a Vector of structs to represent most values and this is just one element of it*/
 struct AddCalibrationReferenceElementStruct
 {
 	norm_pos norm_pos;
 	float timestamp;
-	float id;
+	int id;
+	MSGPACK_DEFINE_ARRAY(norm_pos, timestamp, id);
 };
 
 struct AddCalibrationReferenceDataStruct
 {
-	
+	std::string subject;
+	AddCalibrationReferenceElementStruct ref_data[218];
+	MSGPACK_DEFINE_MAP(subject, ref_data);
 };
