@@ -25,10 +25,9 @@ public:
 	static FPupilMsgWorker* StartListening();
 	/**Stops the Thread and ensures its completion before deleting it*/
 	void StopListening();
-
+	void SetVisualsReference(AAPupilLabsVisualMarkersPawn* CalibrationScenePawn);
 public:
 	DECLARE_EVENT_OneParam(FPupilMsgWorker, DummyEvent, GazeStruct*);
-//	DECLARE_EVENT(FPupilMsgWorker, DummyEvent)
 	DummyEvent& OnNewData()  { return NewPupilDataEvent; }
 
 private:

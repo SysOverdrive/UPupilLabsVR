@@ -57,13 +57,15 @@ public:
 	void InitializeCalibration(zmq::socket_t* ReqSocket);
 
 	bool CanGaze();
+	void SetCalibrationSceneVisualReference(AAPupilLabsVisualMarkersPawn* CalibrationScenePawn);
+
+
 
 	void AddCalibrationReferenceData();
 	void AddCalibrationPointReferencePosition(float CalibrationData[], float timestamp);
 
 	void UpdateCalibrationPoint();
 	void UpdateCalibration();
-
 	//CALIBRATION CLASS ?
 	void StartEyeProcesses(zmq::socket_t* ReqSocket);
 	bool StartEyeNotification(zmq::socket_t* ReqSocket, std::string EyeId);
@@ -94,6 +96,7 @@ private:
 	 GazeStruct ConvertMsgPackToGazeStruct(zmq::message_t info);
 	
 private:
+	AAPupilLabsVisualMarkersPawn * VisualMarkersPawn;
 	///CALIBRATION PROCESS Todo Maybe a Settings struct
 	 bool bEyeProcess0;
 	 bool bEyeProcess1;
@@ -114,7 +117,6 @@ private:
 	 const float VectorDepthRadius[2] = { 2.0, 0.07 };
 	 float CalibrationRadius = 0.12;
 	 float CurrentCalibrationPointPositionX, CurrentCalibrationPointPositionY;
-	 AAPupilLabsVisualMarkersPawn* VisualMarkersPawn;
 	//END CALIBRATION PROCESS
 	 /**Context for Zmq to rely on*/
 	zmq::context_t* ZmqContext;

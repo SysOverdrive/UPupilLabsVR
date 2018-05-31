@@ -125,6 +125,11 @@ void FPupilMsgWorker::StopListening()
 	}
 }
 
+void FPupilMsgWorker::SetVisualsReference(AAPupilLabsVisualMarkersPawn * CalibrationScenePawn)
+{
+	PupilHelper.SetCalibrationSceneVisualReference(CalibrationScenePawn);
+}
+
 void OnNewData()
 {
 	

@@ -157,6 +157,11 @@ bool FPupilLabsUtils::CanGaze()
 	return true;//todo
 }
 
+void FPupilLabsUtils::SetCalibrationSceneVisualReference(AAPupilLabsVisualMarkersPawn* CalibrationScenePawn)
+{
+	VisualMarkersPawn = CalibrationScenePawn;
+}
+
 void FPupilLabsUtils::StartHMDPlugin(zmq::socket_t *ReqSocket)
 {
 	///DATA MARSHELLING
