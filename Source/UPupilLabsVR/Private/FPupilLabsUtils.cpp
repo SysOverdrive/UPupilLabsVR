@@ -12,7 +12,7 @@ FPupilLabsUtils::FPupilLabsUtils()
 	SynchronizePupilServiceTimestamp();
 	StartCalibration(&ReqSocket);
 	FPlatformProcess::Sleep(5);
-	//StopCalibration(&ReqSocket);
+	UpdateCalibration(&ReqSocket);
 
 	//SetDetectionMode(&ReqSocket);
 	//StartEyeProcesses(&ReqSocket);
@@ -141,7 +141,6 @@ GazeStruct FPupilLabsUtils::GetGazeStructure()
 	return ReceivedGazeStruct;
 }
 
-
 void FPupilLabsUtils::InitializeCalibration(zmq::socket_t *ReqSocket)
 {
 	UE_LOG(LogTemp, Warning, TEXT("[%s][%d] : %s"), TEXT(__FUNCTION__), __LINE__, TEXT("Initializing Calibration"));
@@ -200,7 +199,7 @@ void FPupilLabsUtils::StartHMDPlugin(zmq::socket_t *ReqSocket)
 
 void FPupilLabsUtils::SendCalibrationShouldStart(zmq::socket_t *ReqSocket)
 {
-	CalibrationShouldStartStruct ShouldStartStruct = { "calibration.should_start",{ 1200, 1200 }, 35,{ 0,0,0 },{ 0,0,0 } };
+	CalibrationShouldStartStruct ShouldStartStruct = { "calibration.should_start",{ 1200, 1200 }, 35,{ -15,0,0 },{ -15,0,0 } };
 	std::string FirstBuffer = "notify." + ShouldStartStruct.subject;
 
 	zmq::message_t FirstFrame(FirstBuffer.size());
@@ -288,7 +287,6 @@ bool FPupilLabsUtils::SetDetectionMode(zmq::socket_t *ReqSocket)
 	LogReply(Notification2DReply); //ToDo delete after implementation
 	return true;
 }
-
 
 void FPupilLabsUtils::StartEyeProcesses(zmq::socket_t *ReqSocket)
 {
@@ -402,7 +400,7 @@ void FPupilLabsUtils::AddCalibrationReferenceData()
 	//			_calibrationData.ToArray()
 	//		}
 	//	});
-
+	CalibrationStruct = {}; //Clear Data
 
 }
 ////ToDo Find the appropriat struct collect data with reference position (bellow) and send data with reference data (above)
