@@ -18,6 +18,26 @@
 			"Name": "UPupilLabsVR",
 			"Type": "Developer",
 			"LoadingPhase": "Default"
-		}
+		},
+	{
+      "Name": "UTags",
+      "Type": "Developer",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "UIds",
+      "Type": "Developer",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "UConversions",
+      "Type": "Developer",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "UTagsEd",
+      "Type": "Developer",
+      "LoadingPhase": "Default"
+    }
 	]
 }
