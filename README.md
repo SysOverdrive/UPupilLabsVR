@@ -17,6 +17,8 @@ Brief Objectives.
 
 Unreal Engine Editor Modules for viewing specific tags in an editor module. Under these tags that can be visualised and edited different properties of objects can be edited. Including the invisible eye-tracking objects and their properties for receiving and updating data on different topics
 
+Continuasly integrating repo : https://github.com/SysOverdrive/UUtils
+
 # UPupilLabsVR
 Plugin for connecting to Pupil Labs VR using the ZeroMQ and MsgPack library
 
