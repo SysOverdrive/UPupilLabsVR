@@ -6,7 +6,8 @@ Brief Objectives.
 # What has been done.
 1. Integration of an editor gui with the existing tags modules and their capabilities.
 2. Integration of the Pupil Eye-tracker in Unreal with limited functionality.
-3. Conveying of the 2 modules.
+3. Conveying of the 2 modules into a single Unreal Engine Plugin
+
 # Todo
 1. Open the connection procedures through a much more aproachable api.
 2. Obtain more reliable calibration procedure.
