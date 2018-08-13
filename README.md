@@ -8,9 +8,9 @@ Plugin for connecting to Pupil Labs VR using the ZeroMQ library
 https://www.youtube.com/watch?v=6sWmOcGMDTk
 For the Moment all info is logged in the console.
 For The Moment if you want to change where you connect you need to go in FPupilLabsUtils.h and change this fields
-	std::string Addr = "tcp://127.0.0.1:";//ToDo UPROPERTY Options
-	std::string PupilTopic = u8"gaze"; //TODO Implement Options With UObject
-With these:
+	<br/>std::string Addr = "tcp://127.0.0.1:";//ToDo UPROPERTY Options
+	<br/>std::string PupilTopic = u8"gaze"; //TODO Implement Options With UObject
+<br/>With these:
   <br/>	//string filter = u8"gaze";
   <br/>	//string filter = u8"notify";
   <br/>	//string filter = u8"pupil";
