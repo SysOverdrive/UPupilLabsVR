@@ -1,5 +1,24 @@
+# Gsoc 2018
+
+Brief Objectives.
+1. Create a GUI for the research institute that can confortobly edit object tags and visualize their properties.-
+2. Have the eye-tracking plugin work with Pupil Head Mounted Eyetracker.
+# What has been done.
+1. Integration of an editor gui with the existing tags modules and their capabilities.
+2. Integration of the Pupil Eye-tracker in Unreal with limited functionality.
+3. Conveying of the 2 modules.
+# Todo
+1. Open the connection procedures through a much more aproachable api.
+2. Obtain more reliable calibration procedure.
+3. Make an in game GUI for user hot swaps and modifications on the fly.
+4. Extend the editor to include topic subscriptions and better visualizations.
+
+# UPupilLabs Utils
+
+Unreal Engine Editor Modules for viewing specific tags in an editor module. Under these tags that can be visualised and edited different properties of objects can be edited. Including the invisible eye-tracking objects and their properties for receiving and updating data on different topics
+
 # UPupilLabsVR
-Plugin for connecting to Pupil Labs VR using the ZeroMQ library
+Plugin for connecting to Pupil Labs VR using the ZeroMQ and MsgPack library
 
 <b>Installation</b>
 <br/>1.Download this in to the ..\Plugins folder of your Project
@@ -19,6 +38,6 @@ Although the current other structures aside from gaze are not implemented #TODO
   
   Currently uses port 55555 on localhost
 
-Common Errors:
+Common Errors For Installing the eye-tracker:
 
 Can't compile C++ : missing "alts.lib" - Solution : Open Visual Studio Installer -> Select Desktop development with c++ -> Select MFC and Atl Support + VC++ 2015.3v 140 toolset for desktop and install them
